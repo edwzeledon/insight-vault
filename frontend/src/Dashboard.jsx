@@ -1,5 +1,7 @@
 import { useState } from "react";
+
 import Navbar from "./Navbar";
+import LineChart from "./LineChart";
 
 export default function Dashboard() {
     const [comp, setcomp] = useState([
@@ -17,6 +19,7 @@ export default function Dashboard() {
     function handleCompClick() {
 
     }
+
     return (
         <div className="d-flex flex-column min-vh-100">
             <Navbar />
@@ -27,9 +30,9 @@ export default function Dashboard() {
                             <span className="fw-bold fs-5"> Tracked Competitors </span>
                             <div className="list-group mb-3">
                                 {
-                                    comp.map(comp => {
+                                    comp.map((comp, index) => {
                                         return (
-                                            <button type="button" className="list-group-item list-group-item-action mt-3" onClick={handleCompClick}> {comp} </button>
+                                            <button key={index} type="button" className="list-group-item list-group-item-action mt-3" onClick={handleCompClick}> {comp} </button>
                                         )
                                     })
                                 }
@@ -41,9 +44,9 @@ export default function Dashboard() {
                             <span className="fw-bold fs-5"> Data Sources</span>
                             <ul className="list-group ">
                                 {
-                                    sources.map(src => {
+                                    sources.map((src, index)=> {
                                         return (
-                                            <li className="list-group-item bg-light mt-3"> &#10003; {src} </li>
+                                            <li key={index} className="list-group-item bg-light mt-3"> &#10003; {src} </li>
                                         )
                                     })
                                 }
@@ -82,6 +85,7 @@ export default function Dashboard() {
                     <div className="row g-0 gap-3 mb-3">
                         <div className="col-6 bg-secondary-subtle rounded-3 p-3">
                             <h6 className="fw-bold"> Sentiment Trends </h6>
+                            <LineChart />
                         </div>
                         <div className="col-5 bg-secondary-subtle rounded-3 p-3">
                             <h6 className="fw-bold"> Latest Activity </h6>

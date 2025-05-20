@@ -15,6 +15,49 @@ export default function Dashboard() {
         'Twitter/X',
         'Reddit'
     ])
+    const [topics, setTopics] = useState([
+        {
+            title: 'AI Integeration',
+            category: 'Product/Innovation',
+            source: 'Press Release',
+            link: '#'
+        },
+        {
+            title: 'Restructuring',
+            category: 'Operations',
+            source: 'Twitter/X',
+            link: '#'
+        },
+        {
+            title: 'Customer Churn',
+            category: 'Market Signals',
+            source: 'Reddit',
+            link: '#'
+        },
+        {
+            title: 'Restructuring',
+            category: 'Operations',
+            source: 'Twitter/X',
+            link: '#'
+        },
+    ])
+    const [changes, setChanges] = useState([
+        {
+            title: 'Partnership with CloudTech',
+            impact: 'Expanded market reach',
+            date: 'May 15'
+        },
+        {
+            title: 'Pricing increase %15',
+            impact: 'Customer churn risk',
+            date: 'May 10'
+        },
+        {
+            title: 'New VP of product hired',
+            impact: 'Potential strategy shift',
+            date: 'April 22'
+        }
+    ])
 
     function handleCompClick() {
 
@@ -44,7 +87,7 @@ export default function Dashboard() {
                             <span className="fw-bold fs-5"> Data Sources</span>
                             <ul className="list-group ">
                                 {
-                                    sources.map((src, index)=> {
+                                    sources.map((src, index) => {
                                         return (
                                             <li key={index} className="list-group-item bg-light mt-3"> &#10003; {src} </li>
                                         )
@@ -85,18 +128,27 @@ export default function Dashboard() {
                     <div className="row g-0 gap-3 mb-3">
                         <div className="col-6 bg-secondary-subtle rounded-3 p-3">
                             <h6 className="fw-bold"> Sentiment Trends </h6>
-                            <LineChart />
+                            <div className="container bg-white rounded-3 py-2">
+                                <LineChart />
+                            </div>
                         </div>
                         <div className="col-5 bg-secondary-subtle rounded-3 p-3">
                             <h6 className="fw-bold"> Latest Activity </h6>
-                            <div className="mb-3 rounded-3 p-2 bg-white" style={{fontSize: '14px'}}>
+                            <div className="mb-3 rounded-3 p-2 bg-white" style={{ fontSize: '14px' }}>
                                 <span className="fw-bold"> New Feature Launch: Virtual Assistant </span>
                                 <div>
                                     <span className="text-secondary"> Press Release | May 15, 2025 </span>
                                     <p className="m-0"> AI detected: Major product strategy shift</p>
                                 </div>
                             </div>
-                            <div className="rounded-3 p-2 bg-white" style={{fontSize: '14px'}}>
+                            <div className="mb-3 rounded-3 p-2 bg-white" style={{ fontSize: '14px' }}>
+                                <span className="fw-bold"> User complaints about login issues </span>
+                                <div>
+                                    <span className="text-secondary"> App store reviews | May 12-14, 2025 </span>
+                                    <p className="m-0"> AI detected: Technical issue trend</p>
+                                </div>
+                            </div>
+                            <div className="rounded-3 p-2 bg-white" style={{ fontSize: '14px' }}>
                                 <span className="fw-bold"> User complaints about login issues </span>
                                 <div>
                                     <span className="text-secondary"> App store reviews | May 12-14, 2025 </span>
@@ -105,11 +157,58 @@ export default function Dashboard() {
                             </div>
                         </div>
                     </div>
+                    <div className="row g-0 gap-3 mb-3">
+                        <div className="col-6 rounded-3 p-3 bg-secondary-subtle">
+                            <h6 className="fw-bold"> Stategic Topics</h6>
+                            <div className="row g-0" style={{ fontSize: '14px' }}>
+                                {
+                                    topics.map((topic, index) => {
+                                        return (
+                                            <div key={index} className="col-12 bg-white p-2 mb-2 border-start border-success border-5 rounded-end d-flex justify-content-between align-items-center">
+                                                <span className="fw-bold"> {topic.title}</span>
+                                                <span> {topic.category} </span>
+                                                <span className="d-flex align-items-center">
+                                                    {topic.source}
+                                                    <a href={topic.link} target="_blank" className="btn btn-primary btn-sm rounded-circle ms-2"> &rarr; </a>
+                                                </span>
+                                            </div>
+                                        )
+                                    })
+                                }
+                                <div className="col-12 mt-1 d-flex justify-content-end">
+                                    <a href="#" className="link-primary text-decoration-none">4 more topics &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-5 rounded-3 p-3 bg-secondary-subtle">
+                            <h6 className="fw-bold"> Strategic Changes</h6>
+                            <div className="row g-0" style={{ fontSize: '14px' }}>
+                                {
+                                    changes.map((change, index) => {
+                                        return (
+                                            <div key={index} className="col-12 bg-white p-2 mb-2 border-start border-success border-5 rounded-end align-items-center">
+                                                <div className="d-flex justify-content-between">
+                                                    <span className="fw-bold"> {change.title}</span>
+                                                    <span> {change.date} </span>
+                                                </div>
+                                                <div className="d-flex align-items-center">
+                                                    Impact: {change.impact}
+                                                </div>
+                                            </div>
+                                        )
+                                    })
+                                }
+                                <div className="col-12 mt-1 d-flex justify-content-end">
+                                    <a href="#" className="link-primary text-decoration-none">View all &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div className="row g-0">
-                        <div className="col-7 bg-primary-subtle rounded-3 p-3">
+                        <div className="col-11 bg-primary-subtle rounded-3 p-3">
                             <h6 className="fw-bold"> AI Analysis Summary </h6>
-                            <p className="m-0"> 
-                                Competitor B appears to be pivoting toward an AI-first strategy with their latest product update.  
+                            <p className="m-0 col-8">
+                                Competitor B appears to be pivoting toward an AI-first strategy with their latest product update.
                                 Their price increase has caused negative sentiment, but new features have been well-received.
                             </p>
                         </div>

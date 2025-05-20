@@ -20,42 +20,49 @@ export default function Dashboard() {
             title: 'AI Integeration',
             category: 'Product/Innovation',
             source: 'Press Release',
-            link: '#'
+            link: '#',
+            type: 'success'
         },
         {
             title: 'Restructuring',
             category: 'Operations',
             source: 'Twitter/X',
-            link: '#'
+            link: '#',
+            type: 'danger'
         },
         {
             title: 'Customer Churn',
             category: 'Market Signals',
             source: 'Reddit',
-            link: '#'
+            link: '#',
+            type: 'danger'
         },
         {
             title: 'Restructuring',
             category: 'Operations',
             source: 'Twitter/X',
-            link: '#'
+            link: '#',
+            type: 'danger'
         },
     ])
     const [changes, setChanges] = useState([
         {
             title: 'Partnership with CloudTech',
             impact: 'Expanded market reach',
-            date: 'May 15'
+            date: 'May 15',
+            type: 'success'
         },
         {
             title: 'Pricing increase %15',
             impact: 'Customer churn risk',
-            date: 'May 10'
+            date: 'May 10',
+            type: 'danger'
         },
         {
             title: 'New VP of product hired',
             impact: 'Potential strategy shift',
-            date: 'April 22'
+            date: 'April 22',
+            type: 'primary'
         }
     ])
 
@@ -164,7 +171,7 @@ export default function Dashboard() {
                                 {
                                     topics.map((topic, index) => {
                                         return (
-                                            <div key={index} className="col-12 bg-white p-2 mb-2 border-start border-success border-5 rounded-end d-flex justify-content-between align-items-center">
+                                            <div key={index} className={`col-12 bg-white p-2 mb-2 border-start border-${topic.type} border-5 rounded-end d-flex justify-content-between align-items-center`}>
                                                 <span className="fw-bold"> {topic.title}</span>
                                                 <span> {topic.category} </span>
                                                 <span className="d-flex align-items-center">
@@ -186,7 +193,7 @@ export default function Dashboard() {
                                 {
                                     changes.map((change, index) => {
                                         return (
-                                            <div key={index} className="col-12 bg-white p-2 mb-2 border-start border-success border-5 rounded-end align-items-center">
+                                            <div key={index} className={`col-12 bg-white p-2 mb-2 border-start border-5 rounded-end align-items-center border-${change.type}`}>
                                                 <div className="d-flex justify-content-between">
                                                     <span className="fw-bold"> {change.title}</span>
                                                     <span> {change.date} </span>

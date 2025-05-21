@@ -2,7 +2,8 @@ import express from 'express';
 import pg from 'pg';
 import cors from 'cors';
 import fetch from 'node-fetch';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
+import gplay from "google-play-scraper";
 
 dotenv.config()
 
@@ -11,17 +12,16 @@ const app = express()
 
 const url = 'https://api-inference.huggingface.co/models'
 
-app.get('/api/summarize', async (req, res) => {
+async function summarize(text) {
     try {
-        const text = 'Broccoli is a vital addition to a balanced diet due to its rich nutritional profile and numerous health benefits. This cruciferous vegetable is packed with essential vitamins, minerals, and antioxidants that contribute to overall well-being. Regular consumption of broccoli has been linked to improved digestion, enhanced immune function, and a reduced risk of chronic diseases such as heart disease and certain cancers. Additionally, its high fiber content promotes satiety, making it an excellent choice for those looking to maintain a healthy weight. Incorporating broccoli into meals not only boosts nutritional intake but also supports long-term health.'
-        const response = await fetch (`${url}/facebook/bart-large-cnn`, {
+        const response = await fetch(`${url}/facebook/bart-large-cnn`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${process.env.HF_TOKEN}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                inputs: text, 
+            body: JSON.stringify({
+                inputs: text,
                 parameters: {
                     min_length: 20,
                     max_length: 100
@@ -29,27 +29,23 @@ app.get('/api/summarize', async (req, res) => {
             })
         })
         const results = await response.json()
-        console.log(results.summary_text) // summary is returned in summary_text
+        return results[0].summary_text
     } catch (err) {
-        console.log(err)
-        res.json({ error: 'Error fetching data from summarize model'})
+        throw err
     }
-})
-
-app.get('/api/getsentiment', async (req, res) => {
+}
+async function getSentiment(text) {
     try {
-        const text = 'Spotify has been so awesome lately, i love these new features!'
         const response = await fetch(`${url}/cardiffnlp/twitter-roberta-base-sentiment`, {
-            method: 'POST', 
+            method: 'POST',
             headers: {
                 Authorization: `Bearer ${process.env.HF_TOKEN}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ inputs: text })
         })
-        const results = await response.json()
-        console.log(results) 
-        /* 
+        return await response.json()
+         /* 
             output: 
             [
                [
@@ -59,15 +55,14 @@ app.get('/api/getsentiment', async (req, res) => {
                 ]
             ]
         */
-    } catch (err){
-        console.log(err)
-        res.json({ error: 'Error fetching data from sentiment model'})
-    }
-})
 
-app.get('/api/identify', async(req, res) => {
+    } catch (err) {
+        console.log(err)
+        throw err
+    }
+}
+async function extractTextData(text) {
     try {
-        const text = 'Spotify has been so awesome lately, i love their new features!'
         const response = await fetch(`${url}/Jean-Baptiste/roberta-large-ner-english`, {
             method: 'POST',
             headers: {
@@ -76,9 +71,8 @@ app.get('/api/identify', async(req, res) => {
             },
             body: JSON.stringify({ inputs: text })
         })
-        const results = await response.json()
-        console.log(results)
-        /* 
+        return await response.json()
+         /* 
             output: 
             [
                 {
@@ -91,11 +85,10 @@ app.get('/api/identify', async(req, res) => {
             ]     
         */
     } catch (err) {
-        console.log(err)
-        res.json({ error: 'Error fetching data from topic extract model'})
+        throw err
     }
-})
+}
 
-app.listen (port, ()=> {
+app.listen(port, () => {
     console.log(`Serving running on port ${port}`)
 })

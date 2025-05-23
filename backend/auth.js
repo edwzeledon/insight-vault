@@ -10,7 +10,7 @@ const app = express()
 dotenv.config()
 app.use(express.urlencoded({ extended: false }))
 
-const pool = pg.Pool({
+const pool = new pg.Pool({
     host: 'localhost',
     port: 5432,
     user: 'postgres',
@@ -80,7 +80,7 @@ app.post('/login', async (req, res) => {
         const values = [email]
         const results = await pool.query(sql, values)
 
-        if (!results.rows) {
+        if (!results.rowCount) {
             res.status(400).json({ error: 'Invalid Email' })
             return
         }
@@ -112,16 +112,6 @@ app.post('/login', async (req, res) => {
     }
 })
 
-function generateAcessToken(email, id) {
-    return jwt.sign({ email: email, userId: id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' })
-}
-function generateRefreshToken(email, id) {
-    return jwt.sign({ email: email, userId: id }, process.env.REFRESH_TOKEN_SECRET)
-}
-function hashToken(token) {
-    return createHash('sha256').update(token).digest('hex');
-}
-
 app.delete('/logout', async (req, res) => {
     const reftoken = req.body.token
     if (reftoken === undefined) {
@@ -143,15 +133,31 @@ app.delete('/logout', async (req, res) => {
         const values = [hashToken(reftoken), decoded.userId]
         const results = await pool.query(sql, values)
 
-        if (!results.rows) {
+        if (!results.rowCount) {
             return res.status(404).json({ error: 'Token not found or already removed' })
         }
-        return res.status(200).json({ message: 'Logout successful' })
+        res.status(200).json({ message: 'Logout successful' })
     } catch (err) {
         console.log(err)
         return res.status(500).json({ error: 'Internal server error' })
     }
 })
+
+app.get('/token', async (req, res) => {        
+
+})
+
+function generateAcessToken(email, id) {
+    return jwt.sign({ email: email, userId: id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' })
+}
+
+function generateRefreshToken(email, id) {
+    return jwt.sign({ email: email, userId: id }, process.env.REFRESH_TOKEN_SECRET)
+}
+
+function hashToken(token) {
+    return createHash('sha256').update(token).digest('hex');
+}
 
 app.listen(port, () => {
     console.log(`Auth Server running on port ${port}`)

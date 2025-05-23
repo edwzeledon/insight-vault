@@ -33,16 +33,18 @@ app.post('/register', async (req, res) => {
         }
 
         const hashedPw = await bcrypt.hash(password, 10)
-        const refreshToken = generateRefreshToken(email)
-
         const sql = `
-            INSERT INTO sift_db.users (fname, email, password, refresh_tokens)
-                VALUES ($1, $2, $3, $4);
+            INSERT INTO sift_db.users (fname, email, password)
+                VALUES ($1, $2, $3)
+            RETURNING id;
         `
-        const values = [fname, email, hashedPw, hashToken(refreshToken)]
-        await pool.query(sql, values)
+        const values = [fname, email, hashedPw]
+        const results = await pool.query(sql, values)
 
-        const accessToken = generateAcessToken(email)
+        const id = results.rows[0].id
+        const accessToken = generateAcessToken(email, id)
+        const refreshToken = generateRefreshToken(email, id)
+        
         res.status(200).json({ accessToken, refreshToken })
 
     } catch (error) {

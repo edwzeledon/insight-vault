@@ -2,7 +2,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-import pg from 'pg'
+import pg from 'pg';
+import crypto from 'crypto'
 
 const port = 4000
 const app = express()
@@ -47,8 +48,8 @@ app.post('/register', async (req, res) => {
 
         const addtoken = `
             UPDATE sift_db.users
-            SET refresh_token = array_append(refresh_token, $1)
-            WHERE = $2;
+            SET refresh_tokens = array_append(refresh_tokens, $1)
+            WHERE id = $2;
         `
         const addTokenVals = [hashToken(refreshToken), id]
         await pool.query(addtoken, addTokenVals )
@@ -99,8 +100,8 @@ app.post('/login', async (req, res) => {
 
         const addtoken = `
             UPDATE sift_db.users
-            SET refresh_token = array_append(refresh_token, $1)
-            WHERE = $2;
+            SET refresh_tokens = array_append(refresh_tokens, $1)
+            WHERE id = $2;
         `
         const addTokenVals = [hashToken(refreshToken), userId]
         await pool.query(addtoken, addTokenVals )
@@ -156,7 +157,7 @@ function generateRefreshToken(email, id) {
 }
 
 function hashToken(token) {
-    return createHash('sha256').update(token).digest('hex');
+    return crypto.createHash('sha256').update(token).digest('hex');
 }
 
 app.listen(port, () => {

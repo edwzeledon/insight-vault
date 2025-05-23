@@ -44,7 +44,15 @@ app.post('/register', async (req, res) => {
         const id = results.rows[0].id
         const accessToken = generateAcessToken(email, id)
         const refreshToken = generateRefreshToken(email, id)
-        
+
+        const addtoken = `
+            UPDATE sift_db.users
+            SET refresh_token = array_append(refresh_token, $1)
+            WHERE = $2;
+        `
+        const addTokenVals = [hashToken(refreshToken), id]
+        await pool.query(addtoken, addTokenVals )
+
         res.status(200).json({ accessToken, refreshToken })
 
     } catch (error) {
@@ -95,7 +103,8 @@ app.post('/login', async (req, res) => {
             WHERE = $2;
         `
         const addTokenVals = [hashToken(refreshToken), userId]
-        const addTokenRes = await pool.query(addtoken, addTokenVals )
+        await pool.query(addtoken, addTokenVals )
+        
         res.status(200).json({ accessToken, refreshToken })
     } catch (error) {
         console.log(error)

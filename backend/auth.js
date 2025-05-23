@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import pg from 'pg'
-import e from 'express';
 
 const port = 4000
 const app = express()
@@ -27,27 +26,28 @@ app.post('/register', async (req, res) => {
             || password === undefined || password.length == 0
             || fname === undefined || fname.length == 0
         ) {
-            res.json({
+            res.status(500).json({
                 error: 'Please fill in all required fields'
             })
             return
         }
 
         const hashedPw = await bcrypt.hash(password, 10)
-        const sql = `
-            INSERT INTO sift_db.users (fname, email, password)
-                VALUES ($1, $2, $3);
-        `
+        const refreshToken = generateRefreshToken(email)
 
-        const values = [fname, email, hashedPw]
+        const sql = `
+            INSERT INTO sift_db.users (fname, email, password, refresh_tokens)
+                VALUES ($1, $2, $3, $4);
+        `
+        const values = [fname, email, hashedPw, hashToken(refreshToken)]
         await pool.query(sql, values)
 
         const accessToken = generateAcessToken(email)
-        res.json({ accessToken })
+        res.status(200).json({ accessToken, refreshToken })
 
     } catch (error) {
         console.log(error)
-        res.json({ error: "Server Error" })
+        res.status(500).json({ error: "Server Error" })
     }
 })
 
@@ -58,20 +58,20 @@ app.post('/login', async (req, res) => {
         if (email === undefined || email.length == 0
             || password === undefined || password.length == 0
         ) {
-            res.json({ error: 'Please fill in all required fields' })
+            res.status(400).json({ error: 'Please fill in all required fields' })
             return
         }
 
         const sql = `
             SELECT * 
-             FROM sift_db.users
-             WHERE email = $1;
+            FROM sift_db.users
+            WHERE email = $1;
         `
         const values = [email]
         const results = await pool.query(sql, values)
 
         if (!results.rows) {
-            res.json({ error: 'Invalid Email' })
+            res.status(400).json({ error: 'Invalid Email' })
             return
         }
 
@@ -79,24 +79,67 @@ app.post('/login', async (req, res) => {
         const isPwMatch = await bcrypt.compare(password, hashedPw)
 
         if (!isPwMatch) {
-            res.json({ error: 'Invalid Password' })
+            res.status(400).json({ error: 'Invalid Password' })
             return
-        }
+        }  
 
-        const accessToken = generateAcessToken(email)
-        res.json({ accessToken })
+        const userId = results.rows[0].id
+        const accessToken = generateAcessToken(email, userId)
+        const refreshToken = generateRefreshToken(email, userId)
+
+        const addtoken = `
+            UPDATE sift_db.users
+            SET refresh_token = array_append(refresh_token, $1)
+            WHERE = $2;
+        `
+        const addTokenVals = [hashToken(refreshToken), userId]
+        const addTokenRes = await pool.query(addtoken, addTokenVals )
+        res.status(200).json({ accessToken, refreshToken })
     } catch (error) {
         console.log(error)
-        res.json({ error: "Server Error" })
+        res.status(500).json({ error: "Internal Server Error" })
     }
 })
 
-function generateAcessToken(user) {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' })
+function generateAcessToken(email, id) {
+    return jwt.sign({ email: email, userId: id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' })
+}
+function generateRefreshToken(email, id) {
+    return jwt.sign({ email: email, userId: id }, process.env.REFRESH_TOKEN_SECRET)
+}
+function hashToken(token) {
+    return createHash('sha256').update(token).digest('hex');
 }
 
-app.delete('/logout', (req, res) => {
-    
+app.delete('/logout', async (req, res) => {
+    const reftoken = req.body.token
+    if (reftoken === undefined) {
+        res.status(403).json({ error: 'Forbidden' });
+    }
+    let decoded
+    try {
+        decoded = jwt.verify(reftoken, process.env.REFRESH_TOKEN_SECRET)
+    } catch (err) {
+        return res.status(401).json({ error: 'Invalid or expired token' })
+    }
+    try {
+        const sql = `
+            UPDATE sift_db.users
+            SET refresh_tokens = array_remove(refresh_tokens, $1)
+            WHERE id = $2
+            RETURNING id;
+        `
+        const values = [hashToken(reftoken), decoded.userId]
+        const results = await pool.query(sql, values)
+
+        if (!results.rows) {
+            return res.status(404).json({ error: 'Token not found or already removed' })
+        }
+        return res.status(200).json({ message: 'Logout successful' })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({ error: 'Internal server error' })
+    }
 })
 
 app.listen(port, () => {

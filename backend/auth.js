@@ -52,7 +52,7 @@ app.post('/register', async (req, res) => {
             WHERE id = $2;
         `
         const addTokenVals = [hashToken(refreshToken), id]
-        await pool.query(addtoken, addTokenVals )
+        await pool.query(addtoken, addTokenVals)
 
         res.status(200).json({ accessToken, refreshToken })
 
@@ -92,7 +92,7 @@ app.post('/login', async (req, res) => {
         if (!isPwMatch) {
             res.status(400).json({ error: 'Invalid Password' })
             return
-        }  
+        }
 
         const userId = results.rows[0].id
         const accessToken = generateAcessToken(email, userId)
@@ -104,8 +104,8 @@ app.post('/login', async (req, res) => {
             WHERE id = $2;
         `
         const addTokenVals = [hashToken(refreshToken), userId]
-        await pool.query(addtoken, addTokenVals )
-        
+        await pool.query(addtoken, addTokenVals)
+
         res.status(200).json({ accessToken, refreshToken })
     } catch (error) {
         console.log(error)
@@ -116,7 +116,7 @@ app.post('/login', async (req, res) => {
 app.delete('/logout', async (req, res) => {
     const reftoken = req.body.token
     if (reftoken === undefined) {
-        res.status(403).json({ error: 'Forbidden' });
+        return res.status(403).json({ error: 'Forbidden' });
     }
     let decoded
     try {
@@ -144,12 +144,39 @@ app.delete('/logout', async (req, res) => {
     }
 })
 
-app.get('/token', async (req, res) => {        
+app.get('/token', async (req, res) => {
+    const reftoken = req.body.token
+    if (reftoken === undefined || reftoken.length == 0) {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+    let decoded
+    try {
+        decoded = jwt.verify(reftoken, process.env.REFRESH_TOKEN_SECRET)
+    } catch (err) {
+        return res.status(401).json({ error: 'Invalid or expired token' })
+    }
+    try {
+        const sql = `
+            SELECT refresh_tokens
+            FROM sift_db.users
+            WHERE id = $1 AND $2 = ANY(refresh_tokens); 
+        `
+        const values = [decoded.userId, hashToken(reftoken)]
+        const results = await pool.query(sql, values)
+        if (!results.rowCount){
+            return res.status(404).json({ error: 'Token not found or already removed' })
+        }
+        const acctoken = generateAcessToken(decoded.email, decoded.userId)
+        res.status(200).json({ message: 'Succes', accessToken: acctoken })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({ error: 'Internal server error' })
+    }
 
 })
 
 function generateAcessToken(email, id) {
-    return jwt.sign({ email: email, userId: id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' })
+    return jwt.sign({ email: email, userId: id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 }
 
 function generateRefreshToken(email, id) {

@@ -2,18 +2,19 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 
-export default function Login() {
+export default function Register() {
     const navigate = useNavigate()
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
-    const [loginData, setLoginData] = useState({
+    const [registerData, setRegisterData] = useState({
+        fname: '',
         email: '',
         password: ''
     })
 
     function handleChange(e) {
         const { name, value } = e.target
-        setLoginData(prev => ({ ...prev, [name]: value }))
+        setRegisterData(prev => ({ ...prev, [name]: value }))
     }
 
     async function handleSubmit(e) {
@@ -27,12 +28,12 @@ export default function Login() {
         setIsLoading(true)
 
         try {
-            const response = await fetch('http://localhost:4000/login', {
+            const response = await fetch('http://localhost:4000/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(loginData)
+                body: JSON.stringify(registerData)
             })
             const results = await response.json()
             if (results.error) {
@@ -56,9 +57,24 @@ export default function Login() {
                     <p className="fw-bold text-secondary"> Competitive Intellegnece Platform </p>
                 </div>
                 <div className="bg-body-tertiary rounded-3 border-start border-primary border-5 p-3 mb-3">
-                    Sign in to monitor your compeititors activity in real-time
+                    Join executives from 500+ companies tracking competitor intelligence
                 </div>
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+                    <div className="mb-3 text-start">
+                        <label htmlFor="name" className="form-label"> Full Name </label>
+                        <input
+                            type="text"
+                            className="form-control form-control-lg"
+                            id="name"
+                            name="fname"
+                            onChange={handleChange}
+                            value={registerData.fname}
+                            required
+                        />
+                        <div className="invalid-feedback">
+                            Please enter your full name.
+                        </div>
+                    </div>
                     <div className="mb-3 text-start">
                         <label htmlFor="email" className="form-label"> Email </label>
                         <input
@@ -67,7 +83,7 @@ export default function Login() {
                             id="email"
                             name="email"
                             onChange={handleChange}
-                            value={loginData.email}
+                            value={registerData.email}
                             required
                         />
                         <div className="invalid-feedback">
@@ -77,12 +93,12 @@ export default function Login() {
                     <div className="mb-3 text-start">
                         <label htmlFor="pw" className="form-label"> Password </label>
                         <input
-                            type="password"
+                            type="text"
                             className="form-control form-control-lg"
                             id="pw"
                             name="password"
                             onChange={handleChange}
-                            value={loginData.password}
+                            value={registerData.password}
                             required
                         />
                         <div className="invalid-feedback">
@@ -92,13 +108,13 @@ export default function Login() {
                         {/* <span className="text-secondary fw-bold" style={{ fontSize: '14px' }} > Minimum 8 characters with uppercase, lowercase, and number </span> */}
                     </div>
                     <button type="submit" className="btn btn-primary col-12">
-                        {isLoading ? 'Logging in...' : 'Login'}
+                        {isLoading ? 'Creating...' : 'Create Account'}
                     </button>
                 </form>
                 <hr className="text-secondary" />
                 <div className="text-primary">
-                    Don't have an account?
-                    <Link to='/register' className="link-primary text-decoration-none"> Register </Link>
+                    Already have an account?
+                    <Link to='/login' className="link-primary text-decoration-none"> Sign in </Link>
                 </div>
             </div>
         </div>

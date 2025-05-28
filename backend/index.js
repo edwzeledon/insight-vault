@@ -12,6 +12,7 @@ const app = express()
 dotenv.config()
 app.use(expressjwt({ secret: process.env.ACCESS_TOKEN_SECRET, algorithms: ['HS256'] }))
 app.use(express.json())
+app.use(cors())
 
 const pool = new pg.Pool({
     host: 'localhost',
@@ -137,7 +138,6 @@ app.post('/addcompetitor', async (req, res) => {
         }
 
         //connect user id to org
-        
         const addRelation = `
             INSERT INTO sift_db.user_competitors (user_id, org_id)
             VALUES ($1, $2);

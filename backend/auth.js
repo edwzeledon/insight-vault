@@ -3,13 +3,16 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import pg from 'pg';
-import crypto from 'crypto'
+import crypto from 'crypto';
+import cors from 'cors';
+
 
 const port = 4000
 const app = express()
 
 dotenv.config()
 app.use(express.json())
+app.use(cors());
 
 const pool = new pg.Pool({
     host: 'localhost',

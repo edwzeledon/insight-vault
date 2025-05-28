@@ -147,7 +147,7 @@ app.delete('/logout', async (req, res) => {
     }
 })
 
-app.get('/token', async (req, res) => {
+app.get('/refresh', async (req, res) => {
     const reftoken = req.body.token
     if (reftoken === undefined || reftoken.length == 0) {
         return res.status(403).json({ error: 'Forbidden' });

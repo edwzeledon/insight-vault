@@ -27,7 +27,7 @@ export default function Login() {
         setIsLoading(true)
 
         try {
-            const response = await fetch ('http://localhost:4000/login', {
+            const response = await fetch('http://localhost:4000/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ export default function Login() {
                 body: JSON.stringify(loginData)
             })
             const results = await response.json()
-            if (results.error){
+            if (results.error) {
                 setError(results.error)
                 setIsLoading(false)
                 return
@@ -88,7 +88,7 @@ export default function Login() {
                         <div className="invalid-feedback">
                             Please enter your password.
                         </div>
-                        { error && ( <div className="text-danger my-3"> {error} </div> ) }
+                        {error && (<div className="text-danger my-3"> {error} </div>)}
                         {/* <span className="text-secondary fw-bold" style={{ fontSize: '14px' }} > Minimum 8 characters with uppercase, lowercase, and number </span> */}
                     </div>
                     <button type="submit" className="btn btn-primary col-12">

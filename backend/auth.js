@@ -9,7 +9,7 @@ const port = 4000
 const app = express()
 
 dotenv.config()
-app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
 
 const pool = new pg.Pool({
     host: 'localhost',

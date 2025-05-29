@@ -62,7 +62,7 @@ app.post('/register', async (req, res) => {
             secure: true,
             sameSite: 'None',
             maxAge: 1000 * 60 * 60 * 24 * 7
-        }).status(200).json({ accessToken, refreshToken })
+        }).status(200).json({ accessToken })
 
     } catch (error) {
         console.log(error)
@@ -119,7 +119,7 @@ app.post('/login', async (req, res) => {
             secure: true,
             sameSite: 'None',
             maxAge: 1000 * 60 * 60 * 24 * 7
-        }).status(200).json({ accessToken, refreshToken })
+        }).status(200).json({ accessToken })
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: "Internal Server Error" })

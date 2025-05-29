@@ -11,6 +11,7 @@ export default function Register() {
         email: '',
         password: ''
     })
+    const setAccessToken = useAuthStore((state) => state.useAccessToken)
 
     function handleChange(e) {
         const { name, value } = e.target
@@ -33,6 +34,7 @@ export default function Register() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify(registerData)
             })
             const results = await response.json()
@@ -41,6 +43,7 @@ export default function Register() {
                 setIsLoading(false)
                 return
             }
+            setAccessToken(results.accessToken)
             setIsLoading(false)
             navigate('/')
         } catch (err) {

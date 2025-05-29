@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import useAuthStore from "./authStore"
 
 
 export default function Login() {
@@ -10,6 +11,7 @@ export default function Login() {
         email: '',
         password: ''
     })
+    const setAccessToken = useAuthStore((state) => state.useAccessToken)
 
     function handleChange(e) {
         const { name, value } = e.target
@@ -32,6 +34,7 @@ export default function Login() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify(loginData)
             })
             const results = await response.json()
@@ -40,6 +43,7 @@ export default function Login() {
                 setIsLoading(false)
                 return
             }
+            setAccessToken(results.accessToken)
             setIsLoading(false)
             navigate('/')
         } catch (err) {

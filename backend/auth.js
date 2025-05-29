@@ -57,7 +57,12 @@ app.post('/register', async (req, res) => {
         const addTokenVals = [hashToken(refreshToken), id]
         await pool.query(addtoken, addTokenVals)
 
-        res.status(200).json({ accessToken, refreshToken })
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None',
+            maxAge: 1000 * 60 * 60 * 24 * 7
+        }).status(200).json({ accessToken, refreshToken })
 
     } catch (error) {
         console.log(error)
@@ -109,7 +114,12 @@ app.post('/login', async (req, res) => {
         const addTokenVals = [hashToken(refreshToken), userId]
         await pool.query(addtoken, addTokenVals)
 
-        res.status(200).json({ accessToken, refreshToken })
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None',
+            maxAge: 1000 * 60 * 60 * 24 * 7
+        }).status(200).json({ accessToken, refreshToken })
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: "Internal Server Error" })
@@ -166,7 +176,7 @@ app.get('/refresh', async (req, res) => {
         `
         const values = [decoded.userId, hashToken(reftoken)]
         const results = await pool.query(sql, values)
-        if (!results.rowCount){
+        if (!results.rowCount) {
             return res.status(404).json({ error: 'Token not found or already removed' })
         }
         const acctoken = generateAcessToken(decoded.email, decoded.userId)

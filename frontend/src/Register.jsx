@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import useAuthStore from "./authStore"
 
 
 export default function Register() {
@@ -11,7 +12,7 @@ export default function Register() {
         email: '',
         password: ''
     })
-    const setAccessToken = useAuthStore((state) => state.useAccessToken)
+    const setAccessToken = useAuthStore((state) => state.setAccessToken)
 
     function handleChange(e) {
         const { name, value } = e.target

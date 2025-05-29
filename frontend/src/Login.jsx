@@ -11,7 +11,7 @@ export default function Login() {
         email: '',
         password: ''
     })
-    const setAccessToken = useAuthStore((state) => state.useAccessToken)
+    const setAccessToken = useAuthStore((state) => state.setAccessToken)
 
     function handleChange(e) {
         const { name, value } = e.target

@@ -86,12 +86,12 @@ export default function SideBar() {
                                     </div>
                                 </div>
                                 <div className="row g-0 gap-2">
-                                    <button type="submit" className="btn btn-primary col">
+                                    <button type="submit" className="btn btn-secondary col">
                                         {isLoading ? 'Adding...' : 'Add'}
                                     </button>
                                     <button
                                         type="button"
-                                        className="btn btn-danger col"
+                                        className="btn btn-dark col"
                                         onClick={() => {
                                             setAddOrg(false)
                                             setOrg('')

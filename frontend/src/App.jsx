@@ -13,16 +13,16 @@ export default function App() {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
 
   useEffect(() => {
-    const refreshToken = async () => {
+    async function refreshToken() {
       try {
-        const res = await fetch('http://localhost:4000/refresh', {
+        const response = await fetch('http://localhost:4000/refresh', {
           method: 'POST',
           credentials: 'include'
         })
 
-        if (res.ok) {
-          const data = await res.json()
-          setAccessToken(data.accessToken)
+        if (response.ok) {
+          const results = await response.json()
+          setAccessToken(results.accessToken)
         } else {
           console.log('Refresh token invalid or expired');
         }

@@ -7,7 +7,6 @@ import crypto from 'crypto';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
-
 const port = 4000
 const app = express()
 
@@ -132,7 +131,7 @@ app.post('/login', async (req, res) => {
 })
 
 app.delete('/logout', async (req, res) => {
-    const reftoken = req.body.token
+    const reftoken = req.cookies.refreshToken
     if (reftoken === undefined) {
         return res.status(403).json({ error: 'Forbidden' });
     }
@@ -155,6 +154,7 @@ app.delete('/logout', async (req, res) => {
         if (!results.rowCount) {
             return res.status(404).json({ error: 'Token not found or already removed' })
         }
+        res.clearCookie("refreshToken", { path: "/" })
         res.status(200).json({ message: 'Logout successful' })
     } catch (err) {
         console.log(err)

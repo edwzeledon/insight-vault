@@ -12,7 +12,10 @@ const app = express()
 dotenv.config()
 app.use(expressjwt({ secret: process.env.ACCESS_TOKEN_SECRET, algorithms: ['HS256'] }))
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}))
 
 const pool = new pg.Pool({
     host: 'localhost',
@@ -104,7 +107,7 @@ async function extractTextData(text) {
 
 app.post('/addcompetitor', async (req, res) => {
     try {
-        const org = req.body.org
+        const org = req.body.name
         const id = req.auth.userId
 
         if (org === undefined || org.length == 0) {
@@ -128,13 +131,17 @@ app.post('/addcompetitor', async (req, res) => {
             appId = appResults.length ? appResults[0].appId : null
 
             const insertOrg = `
-                INSERT INTO sift_db.competitors (name, app_id)
-                VALUES ($1, $2);
+                INSERT INTO sift_db.organizations (name, app_id)
+                VALUES ($1, $2)
+                RETURNING *;
             `
             const values = [org, appId]
-            await pool.query(insertOrg, values)
+            const results = await pool.query(insertOrg, values)
+            if (results.rowCount){
+                appId = results.rows[0].id
+            }
         } else {
-            appId = dupOrgResults.rows[0].app_id
+            appId = dupOrgResults.rows[0].id
         }
 
         //connect user id to org

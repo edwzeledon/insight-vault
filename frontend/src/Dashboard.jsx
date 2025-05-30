@@ -2,19 +2,9 @@ import { useState } from "react";
 
 import Navbar from "./Navbar";
 import LineChart from "./LineChart";
+import SideBar from "./SideBar";
 
 export default function Dashboard() {
-    const [comp, setcomp] = useState([
-        'Competitor A',
-        'Competitor B',
-        'Competitor C',
-        'Competitor D'
-    ])
-    const [sources, setSources] = useState([
-        'App store reviews',
-        'Twitter/X',
-        'Reddit'
-    ])
     const [topics, setTopics] = useState([
         {
             title: 'AI Integeration',
@@ -66,44 +56,11 @@ export default function Dashboard() {
         }
     ])
 
-    function handleCompClick() {
-
-    }
-
     return (
         <div className="d-flex flex-column min-vh-100">
             <Navbar />
             <div className="row g-0 d-flex flex-grow-1">
-                <div className="col-2 d-flex flex-column bg-secondary-subtle p-3">
-                    <div className="d-flex flex-column">
-                        <div className="mb-3">
-                            <span className="fw-bold fs-5"> Tracked Competitors </span>
-                            <div className="list-group mb-3">
-                                {
-                                    comp.map((comp, index) => {
-                                        return (
-                                            <button key={index} type="button" className="list-group-item list-group-item-action mt-3" onClick={handleCompClick}> {comp} </button>
-                                        )
-                                    })
-                                }
-                                <button className="btn btn-sm btn-secondary mt-3"> + Add Competitor </button>
-                            </div>
-
-                        </div>
-                        <div className="mb-3">
-                            <span className="fw-bold fs-5"> Data Sources</span>
-                            <ul className="list-group ">
-                                {
-                                    sources.map((src, index) => {
-                                        return (
-                                            <li key={index} className="list-group-item bg-light mt-3"> &#10003; {src} </li>
-                                        )
-                                    })
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                <SideBar />
                 <div className="col-10 p-3">
                     <h2 className="fs-3 fw-bold mb-3"> Competitor B | Dashboard </h2>
                     <div className="mb-3 row g-0 gap-3">

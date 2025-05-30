@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import pg from 'pg';
 import crypto from 'crypto';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 
 const port = 4000
@@ -12,6 +13,7 @@ const app = express()
 
 dotenv.config()
 app.use(express.json())
+app.use(cookieParser())
 app.use(cors({
     origin: 'http://localhost:5173', 
     credentials: true                 
@@ -160,8 +162,8 @@ app.delete('/logout', async (req, res) => {
     }
 })
 
-app.get('/refresh', async (req, res) => {
-    const reftoken = req.body.token
+app.post('/refresh', async (req, res) => {
+    const reftoken = req.cookies.refreshToken
     if (reftoken === undefined || reftoken.length == 0) {
         return res.status(403).json({ error: 'Forbidden' });
     }

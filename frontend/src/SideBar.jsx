@@ -3,26 +3,43 @@ import useAuthStore from "./authStore";
 
 export default function SideBar() {
     const accessToken = useAuthStore((state) => state.accessToken)
-    const [addOrg, setAddOrg] = useState(false)
+    const [showOrgInput, setShowOrgInput] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [userCompetitors, setUserCompetitors] = useState([
-        'Competitor A',
-        'Competitor B',
-        'Competitor C',
-        'Competitor D'
-    ])
+    const [userCompetitors, setUserCompetitors] = useState([])
     const [sources, setSources] = useState([
         'Press Releases',
         'Twitter/X',
         'Play store reviews',
         'Reddit'
     ])
-    const [org, setOrg] = useState({
-        name: ''
-    })
+    const [org, setOrg] = useState('')
+
+    useEffect(() => {
+        if (!accessToken) return
+        const getUserCompetitors = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/getUserCompetitors', {
+                    headers: {
+                        "Authorization": `Bearer ${accessToken}`
+                    }
+                })
+                if (response.ok) {
+                    const results = await response.json()
+                    setUserCompetitors(results.organizations)
+                }
+            } catch (err) {
+                console.log('Error fetching user competitors', err)
+            }
+        }
+        getUserCompetitors()
+    }, [accessToken])
 
     function handleCompClick() {
-       //fill in page with data for that specific comp
+        //fill in page with data for that specific comp
+    }
+    function format(str) {
+        if (!str) return ''
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
     }
     async function handleOrgSubmit(e) {
         e.preventDefault()
@@ -31,31 +48,53 @@ export default function SideBar() {
             form.classList.add('was-validated')
             return
         }
+        console.log(userCompetitors)
         setIsLoading(true)
+        const formatted = { name: format(org) }
         //make a fetch request to add competiors
         try {
-            console.log('acesstoken: ', accessToken)
             const response = await fetch('http://localhost:3000/addcompetitor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`,
                 },
-                body: JSON.stringify(org)
+                body: JSON.stringify(formatted)
             })
             const results = await response.json()
             if (results.error) {
                 throw new Error(results.error)
             }
             //if successful reset section
-            setUserCompetitors(prev => ([...prev, org.name]))
+            if (!userCompetitors.some((org) => org.name === formatted.name)) {
+                setUserCompetitors(prev => ([...prev, { name: formatted.name, org_id: results.org_id }]))
+            }
             setOrg('')
             setIsLoading(false)
-            setAddOrg(false)
+            setShowOrgInput(false)
 
         } catch (err) {
             console.log('Error fetching request', err)
             setIsLoading(false)
+        }
+    }
+    async function handleOrgDelete(orgId) {
+        try {
+            const response = await fetch(`http://localhost:3000/userCompetitors/${orgId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+            const results = await response.json()
+            if (results.error) {
+                throw new Error(results.error)
+            }
+            //filter out the array
+            const orgs = userCompetitors.filter((org) => org.org_id !== orgId)
+            setUserCompetitors(orgs)
+        } catch (err) {
+            console.log('Error fetching delete endpoint', err)
         }
     }
     return (
@@ -65,20 +104,38 @@ export default function SideBar() {
                     <span className="fw-bold fs-5"> Tracked Competitors </span>
                     <div className="list-group mb-3">
                         {
-                            userCompetitors.map((comp, index) => {
+                            userCompetitors.map((comp) => {
                                 return (
-                                    <button key={index} type="button" className="list-group-item list-group-item-action mt-3" onClick={handleCompClick}> {comp} </button>
+                                    <button
+                                        key={comp.org_id}
+                                        type="button"
+                                        className="list-group-item list-group-item-action mt-3 d-flex justify-content-between"
+                                        onClick={handleCompClick}
+                                    >
+                                        {comp.name}
+                                        <span
+                                            role="button"
+                                            tabIndex="0"
+                                            className="btn-close"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (confirm('Are you sure you want to remove this organization from your tracked competitors?')) {
+                                                    handleOrgDelete(comp.org_id)
+                                                }
+                                            }}
+                                        ></span>
+                                    </button>
                                 )
                             })
                         }
-                        {addOrg && (
+                        {showOrgInput && (
                             <form className="needs-validation" onSubmit={handleOrgSubmit} noValidate>
                                 <div className="mb-3">
                                     <input
                                         type="text"
                                         className="form-control mt-3"
-                                        value={org.name}
-                                        onChange={(e) => { setOrg({ name: e.target.value }) }}
+                                        value={org}
+                                        onChange={(e) => { setOrg(e.target.value) }}
                                         required
                                     />
                                     <div className="invalid-feedback">
@@ -93,7 +150,7 @@ export default function SideBar() {
                                         type="button"
                                         className="btn btn-dark col"
                                         onClick={() => {
-                                            setAddOrg(false)
+                                            setShowOrgInput(false)
                                             setOrg('')
                                         }} >
                                         Close
@@ -102,8 +159,8 @@ export default function SideBar() {
                                 </div>
                             </form>
                         )}
-                        {!addOrg && (
-                            <button className="btn btn-sm btn-secondary mt-3" onClick={() => { setAddOrg(true) }}> + Add Competitor </button>
+                        {!showOrgInput && (
+                            <button className="btn btn-sm btn-secondary mt-3" onClick={() => { setShowOrgInput(true) }}> + Add Competitor </button>
                         )}
                     </div>
 

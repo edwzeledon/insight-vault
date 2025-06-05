@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "startAuth": "node auth.js",
-    "dev": "node --watch index.js",
-    "devAuth": "node --watch auth.js"
+    "dev": "node --watch index.js"
   },
   "author": "",
   "license": "ISC",

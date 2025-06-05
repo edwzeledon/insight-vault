@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config()
+dotenv.config({ path: '../../.env'})
 
 import pool from "../../db/pool.js";
 import bcrypt from "bcryptjs";
@@ -29,7 +29,7 @@ export const handleRegister = async ({ email, password, fname }) => {
         const results = await pool.query(sql, values)
 
         const id = results.rows[0].id
-        const accessToken = generateAcessToken(email, id)
+        const accessToken = generateAccessToken(email, id)
         const refreshToken = generateRefreshToken(email, id)
 
         const addtoken = `
@@ -73,7 +73,7 @@ export const handleLogin = async ({ email, password }) => {
         }
 
         const userId = results.rows[0].id
-        const accessToken = generateAcessToken(email, userId)
+        const accessToken = generateAccessToken(email, userId)
         const refreshToken = generateRefreshToken(email, userId)
 
         const addtoken = `
@@ -140,7 +140,7 @@ export const handleRefresh = async ({ refreshToken }) => {
         if (!results.rowCount) {
             throw new Error('Token not found or already removed')
         }
-        const acctoken = generateAcessToken(decoded.email, decoded.userId)
+        const acctoken = generateAccessToken(decoded.email, decoded.userId)
         return { message: 'Success', accessToken: acctoken }
     } catch (err) {
         throw new Error('Internal server error', err)
@@ -162,7 +162,7 @@ const isDupEmail = async (email) => {
     }
 }
 
-const generateAcessToken = (email, id) => {
+const generateAccessToken = (email, id) => {
     return jwt.sign({ email: email, userId: id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 }
 

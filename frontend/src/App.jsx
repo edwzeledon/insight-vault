@@ -15,7 +15,7 @@ export default function App() {
   useEffect(() => {
     async function refreshToken() {
       try {
-        const response = await fetch('http://localhost:4000/refresh', {
+        const response = await fetch('http://localhost:3000/auth/refresh', {
           method: 'POST',
           credentials: 'include'
         })

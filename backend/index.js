@@ -1,109 +1,137 @@
 import express from 'express';
-import pg from 'pg';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
-import gplay from "google-play-scraper";
+import cookieParser from 'cookie-parser';
 import { expressjwt } from 'express-jwt';
+import pool from './db/pool.js'
+import authRoutes from './routes/authRoutes.js'
+
+import gplay from "google-play-scraper";
 
 const port = 3000
 const app = express()
 
 dotenv.config()
 app.use(cors({
-    origin: 'http://localhost:5173'
+    origin: 'http://localhost:5173',
+    credentials: true
 }))
 app.use(express.json())
-app.use(expressjwt({ secret: process.env.ACCESS_TOKEN_SECRET, algorithms: ['HS256'] }))
+app.use(expressjwt({ secret: process.env.ACCESS_TOKEN_SECRET, algorithms: ['HS256'] }).unless({
+    path: [/^\/auth\/.*/]
+}))
+app.use(cookieParser())
 
+//ROUTES
+app.use('/auth', authRoutes)
 
-
-const pool = new pg.Pool({
-    host: 'localhost',
-    port: 5432,
-    user: 'postgres',
-    password: `${process.env.DB_PASSWORD}`,
-    database: 'Personal Projects'
-})
-
-
-const url = 'https://api-inference.huggingface.co/models'
+const hfurl = 'https://api-inference.huggingface.co/models'
+const newsurl = 'https://newsapi.org/v2/top-headlines'
 
 async function summarize(text) {
-    try {
-        const response = await fetch(`${url}/facebook/bart-large-cnn`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${process.env.HF_TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                inputs: text,
-                parameters: {
-                    min_length: 20,
-                    max_length: 100
-                }
-            })
+    const response = await fetch(`${hfurl}/facebook/bart-large-cnn`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${process.env.HF_TOKEN}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            inputs: text,
+            parameters: {
+                min_length: 20,
+                max_length: 100
+            }
         })
-        const results = await response.json()
-        return results[0].summary_text
-    } catch (err) {
-        throw err
-    }
+    })
+    const results = await response.json()
+    return results[0].summary_text
 }
 async function getSentiment(text) {
-    try {
-        const response = await fetch(`${url}/cardiffnlp/twitter-roberta-base-sentiment`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${process.env.HF_TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ inputs: text })
-        })
-        return await response.json()
-        /* 
-           output: 
-           [
-              [
-                   { label: 'LABEL_2', score: 0.9931817650794983 }, // Positive
-                   { label: 'LABEL_1', score: 0.004856493324041367 }, // Nuetral
-                   { label: 'LABEL_0', score: 0.0019616682548075914 }' // Negative
-               ]
+    const response = await fetch(`${hfurl}/cardiffnlp/twitter-roberta-base-sentiment`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${process.env.HF_TOKEN}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ inputs: text })
+    })
+    return await response.json()
+    /* 
+       output: 
+       [
+          [
+               { label: 'LABEL_2', score: 0.9931817650794983 }, // Positive
+               { label: 'LABEL_1', score: 0.004856493324041367 }, // Nuetral
+               { label: 'LABEL_0', score: 0.0019616682548075914 }' // Negative
            ]
-       */
-
-    } catch (err) {
-        console.log(err)
-        throw err
-    }
+       ]
+   */
 }
 async function extractTextData(text) {
-    try {
-        const response = await fetch(`${url}/Jean-Baptiste/roberta-large-ner-english`, {
-            method: 'POST',
+    const response = await fetch(`${hfurl}/Jean-Baptiste/roberta-large-ner-english`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${process.env.HF_TOKEN}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ inputs: text })
+    })
+    return await response.json()
+    /* 
+       output: 
+       [
+           {
+               entity_group: 'ORG',
+               score: 0.9911782,
+               word: ' Spotify',
+               start: 0,
+               end: 7
+           }
+       ]     
+   */
+}
+async function classifyTextData(data) {
+    /*
+        SAMPLE INPUT:
+        {
+            inputs: "Hi, I recently bought a device from your company but it is not working as advertised and I would like to get reimbursed!",
+            parameters: { candidate_labels: ["refund", "legal", "faq"] 
+        }
+    */
+    const response = await fetch(`${hfurl}/facebook/bart-large-mnli`,
+        {
+            method: "POST",
             headers: {
                 Authorization: `Bearer ${process.env.HF_TOKEN}`,
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify({ inputs: text })
-        })
-        return await response.json()
-        /* 
-           output: 
-           [
-               {
-                   entity_group: 'ORG',
-                   score: 0.9911782,
-                   word: ' Spotify',
-                   start: 0,
-                   end: 7
-               }
-           ]     
-       */
-    } catch (err) {
-        throw err
-    }
+            body: JSON.stringify(data),
+        }
+    )
+    const result = await response.json()
+    return result
+    /*
+        SAMPLE OUTPUT:
+        {
+            "sequence": "Hi, I recently bought a device from your company but it is not working as advertised and I would like to get reimbursed!",
+            "labels": [
+                "refund",
+             "faq",
+                "legal"
+            ],
+            "scores": [
+                0.8777873516082764,
+                0.10522671788930893,
+                0.016985908150672913
+            ]
+        }
+    */
+}
+async function getTopHeadlines(query) {
+    const params = new URLSearchParams({ q: query, apiKey: process.env.NEWS_API_TOKEN }).toString()
+    const response = await fetch(`${newsurl}?${params}`)
+    return await response.json()
 }
 
 app.post('/addcompetitor', async (req, res) => {
@@ -138,10 +166,10 @@ app.post('/addcompetitor', async (req, res) => {
             `
             const values = [org, appId]
             const results = await pool.query(insertOrg, values)
-            if (results.rowCount){
+            if (results.rowCount) {
                 appId = results.rows[0].id
             }
-        } else { 
+        } else {
             appId = dupOrgResults.rows[0].id
         }
 
@@ -163,7 +191,7 @@ app.post('/addcompetitor', async (req, res) => {
 
 app.get('/getUserCompetitors', async (req, res) => {
     const userId = req.auth.userId
-    if (userId === undefined){
+    if (userId === undefined) {
         return res.status(401).json({ error: 'Invalid Token: user id missing' })
     }
     try {
@@ -176,7 +204,7 @@ app.get('/getUserCompetitors', async (req, res) => {
         `
         const results = await pool.query(sql, [userId])
         res.status(200).json({ organizations: results.rows })
-    } catch (err){
+    } catch (err) {
         console.log(err)
         res.status(500).json({ error: 'Internal Server Error' })
     }
@@ -185,10 +213,10 @@ app.get('/getUserCompetitors', async (req, res) => {
 app.delete('/userCompetitors/:id', async (req, res) => {
     const orgId = req.params.id
     const userId = req.auth.userId
-    if (userId === undefined){
+    if (userId === undefined) {
         return res.status(401).json({ error: 'Invalid Token: user id missing' })
-    } 
-    if (orgId === undefined || isNaN(orgId)){
+    }
+    if (orgId === undefined || isNaN(orgId)) {
         return res.sendStatus(400).json({ error: 'Invalid or missing org id ' })
     }
     try {
@@ -198,8 +226,8 @@ app.delete('/userCompetitors/:id', async (req, res) => {
         `
         const values = [userId, orgId]
         await pool.query(sql, values)
-        res.status(200).json({ message: 'Successfully removed competitor'})
-    } catch(err){
+        res.status(200).json({ message: 'Successfully removed competitor' })
+    } catch (err) {
         console.log(err)
         res.status(500).json({ error: 'Internal Server Error' })
     }

@@ -16,7 +16,7 @@ export default function Navbar() {
 
     async function handleLogout(){
         try {
-            const response = await fetch('http://localhost:4000/logout',{
+            const response = await fetch('http://localhost:3000/auth/logout',{
                 method: 'DELETE',
                 credentials: 'include'
             })

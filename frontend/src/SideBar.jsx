@@ -1,9 +1,7 @@
 import { useState } from "react";
-import useAuthStore from "./authStore";
 import TrackedCompetitors from "./TrackedCompetitors";
 
 export default function SideBar() {
-    const accessToken = useAuthStore((state) => state.accessToken)
     const [sources, setSources] = useState([
         'Press Releases',
         'Twitter/X',

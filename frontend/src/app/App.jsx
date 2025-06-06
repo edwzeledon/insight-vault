@@ -1,11 +1,10 @@
 import { useEffect } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 
-import './App.css'
-import Dashboard from './Dashboard'
-import Login from './Login'
-import Register from './Register'
-import useAuthStore from './authStore'
+import Dashboard from '../features/dashboard/pages/Dashboard'
+import Login from '../features/auth/pages/Login'
+import Register from '../features/auth/pages/Register'
+import useAuthStore from '../stores/AuthStore'
 
 export default function App() {
 

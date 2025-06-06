@@ -14,7 +14,7 @@ export default function SideBar() {
 
     }
     return (
-        <div className="col-2 d-flex flex-column bg-secondary-subtle p-3">
+        <div className="col-2 d-flex flex-column bg-light p-3">
             <div className="d-flex flex-column">
                 <div className="mb-3">
                     <span className="fw-bold fs-5"> Tracked Competitors </span>
@@ -26,7 +26,7 @@ export default function SideBar() {
                         {
                             sources.map((src, index) => {
                                 return (
-                                    <li key={index} className="list-group-item bg-light mt-3"> &#10003; {src} </li>
+                                    <li key={index} className="list-group-item bg-white shadow-sm mt-3"> &#10003; {src} </li>
                                 )
                             })
                         }
@@ -35,9 +35,9 @@ export default function SideBar() {
                 <div>
                     <span className="fw-bold fs-5"> Background Jobs </span>
                     <ul className="list-group">
-                        <li className="list-group-item bg-light text-success mt-3"> Data Collection: Active</li>
-                        <li className="list-group-item bg-light text-success mt-3"> Sentiment: Active </li>
-                        <li className="list-group-item bg-light text-success mt-3"> Trend detection: Active </li>
+                        <li className="list-group-item bg-white text-success shadow-sm mt-3"> Data Collection: Active</li>
+                        <li className="list-group-item bg-white text-success shadow-sm mt-3"> Sentiment: Active </li>
+                        <li className="list-group-item bg-white text-success shadow-sm mt-3"> Trend detection: Active </li>
                     </ul>
                 </div>
             </div>

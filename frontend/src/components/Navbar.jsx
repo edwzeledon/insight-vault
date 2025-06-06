@@ -29,7 +29,7 @@ export default function Navbar() {
     }
 
     return (
-        <nav className="navbar navbar-expand bg-dark navbar-dark">
+        <nav className="navbar navbar-expand navbar-dark bg-custom">
             <div className="container-fluid">
                 <NavLink className="navbar-brand fs-4" to='/'> Insight Vault </NavLink>
                 <div className="navbar-nav d-flex align-items-center">

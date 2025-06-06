@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import useAuthStore from "../../../authStore"
+import useAuthStore from "../../../stores/AuthStore"
 
 
 export default function Register() {
@@ -60,7 +60,7 @@ export default function Register() {
                     <h1> Insight Vault</h1>
                     <p className="fw-bold text-secondary"> Competitive Intellegnece Platform </p>
                 </div>
-                <div className="bg-body-tertiary rounded-3 border-start border-primary border-5 p-3 mb-3">
+                <div className="bg-body-tertiary rounded-3 custom-left-border p-3 mb-3">
                     Join executives from 500+ companies tracking competitor intelligence
                 </div>
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
@@ -111,14 +111,14 @@ export default function Register() {
                         {error && (<div className="text-danger my-3"> {error} </div>)}
                         {/* <span className="text-secondary fw-bold" style={{ fontSize: '14px' }} > Minimum 8 characters with uppercase, lowercase, and number </span> */}
                     </div>
-                    <button type="submit" className="btn btn-primary col-12">
+                    <button type="submit" className="btn btn-custom-blue col-12">
                         {isLoading ? 'Creating...' : 'Create Account'}
                     </button>
                 </form>
                 <hr className="text-secondary" />
-                <div className="text-primary">
+                <div className="text-custom">
                     Already have an account?
-                    <Link to='/login' className="link-primary text-decoration-none"> Sign in </Link>
+                    <Link to='/login' className="link-custom text-decoration-none"> Sign in </Link>
                 </div>
             </div>
         </div>

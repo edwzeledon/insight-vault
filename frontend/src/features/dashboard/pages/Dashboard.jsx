@@ -61,10 +61,10 @@ export default function Dashboard() {
             <Navbar />
             <div className="row g-0 d-flex flex-grow-1">
                 <SideBar />
-                <div className="col-10 p-3">
+                <div className="col-10 p-3 bg-body-tertiary">
                     <h2 className="fs-3 fw-bold mb-3"> Competitor B | Dashboard </h2>
                     <div className="mb-3 row g-0 gap-3">
-                        <div className="col-3 rounded-3 bg-secondary-subtle p-3">
+                        <div className="col-3 rounded-3 bg-white shadow-sm border p-3">
                             <h6 className="fw-bold mb-0"> Product Updates </h6>
                             <div className="fs-3 fw-bold mb-1">
                                 8
@@ -72,7 +72,7 @@ export default function Dashboard() {
                             </div>
                             <p className="m-0 text-secondary"> Last update: 2 days ago </p>
                         </div>
-                        <div className="col-3 rounded-3 bg-secondary-subtle p-3">
+                        <div className="col-3 rounded-3 bg-white shadow-sm border p-3">
                             <h6 className="fw-bold mb-0"> Average Sentiment </h6>
                             <div className="fs-3 fw-bold mb-1">
                                 7.8/10
@@ -80,7 +80,7 @@ export default function Dashboard() {
                             </div>
                             <p className="m-0 text-secondary"> Across all sources</p>
                         </div>
-                        <div className="col-3 rounded-3 bg-secondary-subtle p-3">
+                        <div className="col-3 rounded-3 bg-white shadow-sm border p-3">
                             <h6 className="fw-bold mb-0"> Customer Issues </h6>
                             <div className="fs-3 fw-bold mb-1">
                                 24
@@ -90,29 +90,29 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="row g-0 gap-3 mb-3">
-                        <div className="col-6 bg-secondary-subtle rounded-3 p-3">
-                            <h6 className="fw-bold"> Sentiment Trends </h6>
-                            <div className="container bg-white rounded-3 py-2">
+                        <div className="col-6 bg-white shadow-sm border rounded-3 p-3">
+                            <h6 className="fw-bold text-decoration-underline"> Sentiment Trends </h6>
+                           
                                 <LineChart />
-                            </div>
+                          
                         </div>
-                        <div className="col-5 bg-secondary-subtle rounded-3 p-3">
+                        <div className="col-5 bg-white shadow-sm border rounded-3 p-3">
                             <h6 className="fw-bold"> Latest Activity </h6>
-                            <div className="mb-3 rounded-3 p-2 bg-white" style={{ fontSize: '14px' }}>
+                            <div className="mb-3 rounded-3 p-2 bg-light-blue-subtle border shadow-sm" style={{ fontSize: '14px' }}>
                                 <span className="fw-bold"> New Feature Launch: Virtual Assistant </span>
                                 <div>
                                     <span className="text-secondary"> Press Release | May 15, 2025 </span>
                                     <p className="m-0"> AI detected: Major product strategy shift</p>
                                 </div>
                             </div>
-                            <div className="mb-3 rounded-3 p-2 bg-white" style={{ fontSize: '14px' }}>
+                            <div className="mb-3 rounded-3 p-2 bg-light-blue-subtle border shadow-sm" style={{ fontSize: '14px' }}>
                                 <span className="fw-bold"> User complaints about login issues </span>
                                 <div>
                                     <span className="text-secondary"> App store reviews | May 12-14, 2025 </span>
                                     <p className="m-0"> AI detected: Technical issue trend</p>
                                 </div>
                             </div>
-                            <div className="rounded-3 p-2 bg-white" style={{ fontSize: '14px' }}>
+                            <div className="rounded-3 p-2 bg-light-blue-subtle border shadow-sm" style={{ fontSize: '14px' }}>
                                 <span className="fw-bold"> User complaints about login issues </span>
                                 <div>
                                     <span className="text-secondary"> App store reviews | May 12-14, 2025 </span>
@@ -122,18 +122,18 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="row g-0 gap-3 mb-3">
-                        <div className="col-6 rounded-3 p-3 bg-secondary-subtle">
+                        <div className="col-6 rounded-3 p-3 bg-white shadow-sm border">
                             <h6 className="fw-bold"> Stategic Topics</h6>
                             <div className="row g-0" style={{ fontSize: '14px' }}>
                                 {
                                     topics.map((topic, index) => {
                                         return (
-                                            <div key={index} className={`col-12 bg-white p-2 mb-2 border-start border-${topic.type} border-5 rounded-end d-flex justify-content-between align-items-center`}>
+                                            <div key={index} className={`col-12 bg-light p-2 mb-3 border-start border-${topic.type} border-5 shadow-sm rounded-end d-flex justify-content-between align-items-center`}>
                                                 <span className="fw-bold"> {topic.title}</span>
                                                 <span> {topic.category} </span>
                                                 <span className="d-flex align-items-center">
                                                     {topic.source}
-                                                    <a href={topic.link} target="_blank" className="btn btn-primary btn-sm rounded-circle ms-2"> &rarr; </a>
+                                                    <a href={topic.link} target="_blank" className="btn light-blue btn-sm rounded-circle ms-2"> &rarr; </a>
                                                 </span>
                                             </div>
                                         )
@@ -144,13 +144,13 @@ export default function Dashboard() {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-5 rounded-3 p-3 bg-secondary-subtle">
+                        <div className="col-5 rounded-3 p-3 bg-white shadow-sm border">
                             <h6 className="fw-bold"> Strategic Changes</h6>
                             <div className="row g-0" style={{ fontSize: '14px' }}>
                                 {
                                     changes.map((change, index) => {
                                         return (
-                                            <div key={index} className={`col-12 bg-white p-2 mb-2 border-start border-5 rounded-end align-items-center border-${change.type}`}>
+                                            <div key={index} className={`col-12 bg-light p-2 mb-3 border-start shadow-sm border-5 rounded-end align-items-center border-${change.type}`}>
                                                 <div className="d-flex justify-content-between">
                                                     <span className="fw-bold"> {change.title}</span>
                                                     <span> {change.date} </span>

@@ -102,7 +102,7 @@ export default function TrackedCompetitors() {
                         <button
                             key={comp.org_id}
                             type="button"
-                            className={`list-group-item list-group-item-action mt-3 d-flex justify-content-between ${index === activeIndex ? 'active' : '' }`}
+                            className={`list-group-item list-group-item-action mt-3 d-flex justify-content-between shadow-sm ${index === activeIndex ? 'bg-primary-subtle' : '' }`}
                             onClick={(e) => {
                                 setActiveIndex(index)
                                 handleCompClick()
@@ -139,12 +139,13 @@ export default function TrackedCompetitors() {
                         </div>
                     </div>
                     <div className="row g-0 gap-2">
-                        <button type="submit" className="btn btn-secondary col">
+                        <button type="submit" className="btn btn-custom-blue col">
                             {isLoading ? 'Adding...' : 'Add'}
                         </button>
                         <button
                             type="button"
-                            className="btn btn-dark col"
+                            className="btn btn-danger col"
+                            style={{opacity: '95%'}}
                             onClick={() => {
                                 setShowOrgInput(false)
                                 setOrg('')
@@ -156,7 +157,7 @@ export default function TrackedCompetitors() {
                 </form>
             )}
             {!showOrgInput && (
-                <button className="btn btn-sm btn-secondary mt-3" onClick={() => { setShowOrgInput(true) }}> + Add Competitor </button>
+                <button className="btn btn-sm btn-custom-blue mt-3" onClick={() => { setShowOrgInput(true) }}> + Add Competitor </button>
             )}
         </div>
     );

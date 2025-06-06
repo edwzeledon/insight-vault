@@ -59,7 +59,7 @@ export default function Login() {
                     <h1> Insight Vault</h1>
                     <p className="fw-bold text-secondary"> Competitive Intellegnece Platform </p>
                 </div>
-                <div className="bg-body-tertiary rounded-3 border-start border-primary border-5 p-3 mb-3">
+                <div className="bg-body-tertiary rounded-3 custom-left-border p-3 mb-3">
                     Sign in to monitor your compeititors activity in real-time
                 </div>
                 <form onSubmit={handleSubmit} className="needs-validation" noValidate>
@@ -95,14 +95,14 @@ export default function Login() {
                         {error && (<div className="text-danger my-3"> {error} </div>)}
                         {/* <span className="text-secondary fw-bold" style={{ fontSize: '14px' }} > Minimum 8 characters with uppercase, lowercase, and number </span> */}
                     </div>
-                    <button type="submit" className="btn btn-primary col-12">
+                    <button type="submit" className="btn btn-custom-blue col-12">
                         {isLoading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
                 <hr className="text-secondary" />
-                <div className="text-primary">
+                <div className="text-custom">
                     Don't have an account?
-                    <Link to='/register' className="link-primary text-decoration-none"> Register </Link>
+                    <Link to='/register' className="link-custom text-decoration-none"> Register </Link>
                 </div>
             </div>
         </div>

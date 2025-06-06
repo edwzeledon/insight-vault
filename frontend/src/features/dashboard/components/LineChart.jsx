@@ -44,7 +44,7 @@ export default function LineChart() {
                     { x: '2025-06-21', y: 7.9 },
                     { x: '2025-06-22', y: 7.3 }
                 ],
-                borderColor: '#0d6efd',
+                borderColor: '#3498db',
                 backgroundColor: '#cfe2ff',
                 pointRadius: 5,
                 pointHoverRadius: 6,

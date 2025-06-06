@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import useAuthStore from "./authStore";
+import useAuthStore from "../../../stores/AuthStore";
 
 export default function TrackedCompetitors() {
     const accessToken = useAuthStore((state) => state.accessToken)
-    const [activeIndex, setActiveIndex] = useState(null);
+    const [activeIndex, setActiveIndex] = useState(0);
     const [showOrgInput, setShowOrgInput] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [userCompetitors, setUserCompetitors] = useState([])
@@ -89,7 +89,7 @@ export default function TrackedCompetitors() {
             console.log('Error fetching delete endpoint', err)
         }
     }
-    function handleCompClick(e) {
+    function handleCompClick() {
         //fill in page with data for that specific comp
 
     }
@@ -102,10 +102,10 @@ export default function TrackedCompetitors() {
                         <button
                             key={comp.org_id}
                             type="button"
-                            className={`list-group-item list-group-item-action mt-3 d-flex justify-content-between ${index === activeIndex ? 'active' : ''} `}
+                            className={`list-group-item list-group-item-action mt-3 d-flex justify-content-between ${index === activeIndex ? 'active' : '' }`}
                             onClick={(e) => {
                                 setActiveIndex(index)
-                                handleCompClick(e)
+                                handleCompClick()
                             }}
                         >
                             {comp.name}

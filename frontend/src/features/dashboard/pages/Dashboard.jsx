@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-import Navbar from "./Navbar";
-import LineChart from "./LineChart";
-import SideBar from "./SideBar";
+import Navbar from "../../../components/Navbar";
+import LineChart from "../components/LineChart";
+import SideBar from "../components/SideBar";
 
 export default function Dashboard() {
     const [topics, setTopics] = useState([

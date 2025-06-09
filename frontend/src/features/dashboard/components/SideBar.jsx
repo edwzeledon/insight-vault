@@ -14,7 +14,7 @@ export default function SideBar() {
 
     }
     return (
-        <div className="col-2 d-flex flex-column bg-light p-3">
+        <div className="col-2 d-flex flex-column bg-extra-light-gray p-3">
             <div className="d-flex flex-column">
                 <div className="mb-3">
                     <span className="fw-bold fs-5"> Tracked Competitors </span>

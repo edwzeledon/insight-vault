@@ -169,10 +169,10 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="row g-0">
-                        <div className="col-11 bg-primary-subtle rounded-3 p-3">
+                        <div className="col-11 bg-primary-subtle shadow-sm border border-primary-subtle rounded-3 p-3">
                             <h6 className="fw-bold"> AI Analysis Summary </h6>
                             <p className="m-0 col-8">
-                                Competitor B appears to be pivoting toward an AI-first strategy with their latest product update.
+                                Competitor B appears to be pivoting to an AI-first strategy with their latest product update.
                                 Their price increase has caused negative sentiment, but new features have been well-received.
                             </p>
                         </div>

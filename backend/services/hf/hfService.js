@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '../../.env'})
+import fetch from 'node-fetch';
 import LABELS from '../../config/labels.js'
 
 const hfurl = 'https://api-inference.huggingface.co/models'

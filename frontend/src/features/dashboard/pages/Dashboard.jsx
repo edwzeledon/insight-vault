@@ -133,7 +133,7 @@ export default function Dashboard() {
                                                 <span> {topic.category} </span>
                                                 <span className="d-flex align-items-center">
                                                     {topic.source}
-                                                    <a href={topic.link} target="_blank" className="btn light-blue btn-sm rounded-circle ms-2"> &rarr; </a>
+                                                    <a href={topic.link} target="_blank" className="btn btn-custom-blue btn-sm rounded-circle ms-2"> &rarr; </a>
                                                 </span>
                                             </div>
                                         )

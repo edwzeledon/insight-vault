@@ -47,7 +47,10 @@ const getOrgLatestNewsDate = async (id) => {
         if (!results.rowCount) {
             const orgSql = `SELECT name FROM sift_db.organizations WHERE id=$1;`
             const orgResults = await pool.query(orgSql, [id])
-            return { date: '', org: orgResults.rows[0].name } //if no news, return empty date 
+            //get the current date, get data from a 6 months ago
+            const date = new Date()
+            date.setMonth(date.getMonth() - 6)
+            return { date: date.toISOString().split('T')[0], org: orgResults.rows[0].name }
         }
         // else, we have a latest date, and the org name
         return { data: results.rows[0].date, org: results.rows[0].name }

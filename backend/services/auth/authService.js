@@ -33,10 +33,10 @@ export const handleRegister = async ({ email, password, fname }) => {
         const refreshToken = generateRefreshToken(email, id)
 
         const addtoken = `
-        UPDATE sift_db.users
-        SET refresh_tokens = array_append(refresh_tokens, $1)
-        WHERE id = $2;
-    `
+            UPDATE sift_db.users
+            SET refresh_tokens = array_append(refresh_tokens, $1)
+            WHERE id = $2;
+        `
         const addTokenVals = [hashToken(refreshToken), id]
         await pool.query(addtoken, addTokenVals)
         return { accessToken, refreshToken }

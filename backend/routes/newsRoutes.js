@@ -1,8 +1,8 @@
 import express from 'express'
-//functions needed from controller
+import fetchLatestNews from '../controllers/newsController.js'
 
 const router = express.Router()
 
-router.get('/:orgId/latest')
+router.get('/:id', fetchLatestNews)
 
 export default router

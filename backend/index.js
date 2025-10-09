@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { expressjwt } from 'express-jwt';
 import pool from './db/pool.js'
 import authRoutes from './routes/authRoutes.js'
+import newsRoutes from './routes/newsRoutes.js'
 
 import gplay from "google-play-scraper";
 
@@ -24,6 +25,7 @@ app.use(cookieParser())
 
 //ROUTES
 app.use('/auth', authRoutes)
+app.use('/news', newsRoutes)
 
 app.post('/addcompetitor', async (req, res) => {
     try {

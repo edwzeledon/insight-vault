@@ -5,7 +5,7 @@ import {
     productStrategyKeywords,
     regulationPolicyKeywords,
     hiringLayoffKeywords
-} from "../../config/keywords";
+} from "../../config/keywords.js";
 
 function classifyArticle(article) {
     const text = (article.title + " " + article.description).toLowerCase()
@@ -26,6 +26,6 @@ function containsKeywords(text, keywords) {
     return keywords.some(keyword => text.includes(keyword))
 }
 
-export const filteredArticles = allArticles
-    .map(classifyArticle)
-    .filter(article => article !== null);
+export const filteredArticles = (articles) => {
+    return articles.map(classifyArticle).filter(article => article !== null);
+}

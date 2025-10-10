@@ -1,13 +1,14 @@
 import { useEffect } from 'react'
-import { HashRouter, Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 
-import Dashboard from '../features/dashboard/pages/Dashboard'
-import Login from '../features/auth/pages/Login'
-import Register from '../features/auth/pages/Register'
-import useAuthStore from '../stores/AuthStore'
+import DashboardPage from './features/dashboard/pages/DashboardPage'
+import Login from './features/auth/pages/Login'
+import Register from './features/auth/pages/Register'
+import useAuthStore from './stores/AuthStore'
 
 export default function App() {
   const navigate = useNavigate()
+  const location = useLocation();
   const accessToken = useAuthStore((state) => state.accessToken);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
 
@@ -24,27 +25,30 @@ export default function App() {
           setAccessToken(results.accessToken)
         } else {
           console.log('Refresh token invalid or expired');
+          if (location.pathname === '/register' || location.pathname === '/login') {
+            return
+          }
           navigate('/login')
         }
       } catch (err) {
         console.error('Failed to refresh token', err);
+        if (location.pathname === '/register' || location.pathname === '/login') {
+          return
+        }
         navigate('/login')
       }
     }
     if (!accessToken) {
       refreshToken()
     }
-  }, [accessToken, setAccessToken])
+  }, [accessToken, setAccessToken, navigate])
 
   return (
     <>
       <Routes>
-        <Route path='/' Component={Dashboard} />
-        <Route path='/login' Component={Login} />
-        <Route path='/register' Component={Register} />
-        {/* <Route path='/competitors' Component={Navbar} />
-          <Route path='/sources' Component={Navbar} />
-          <Route path='/alerts' Component={Navbar} /> */}
+        <Route path='/' element={<DashboardPage />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
       </Routes>
     </>
   )

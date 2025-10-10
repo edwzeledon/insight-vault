@@ -54,71 +54,86 @@ export default function Register() {
     }
 
     return (
-        <div className="d-flex justify-content-center align-items-center bg-body-tertiary min-vh-100">
-            <div className="col-5 p-5 border shadow rounded-3 d-flex flex-column bg-white text-center">
-                <div className="mx-auto my-3">
-                    <h1> Insight Vault</h1>
-                    <p className="fw-bold text-secondary"> Competitive Intellegnece Platform </p>
+        <div className="flex justify-center items-center bg-muted min-h-screen">
+            <div className="w-full max-w-md p-8 border border-border shadow-lg rounded-lg bg-card">
+                <div className="text-center mb-6">
+                    <h1 className="text-3xl font-bold text-foreground mb-2">Insight Vault</h1>
+                    <p className="text-sm font-semibold text-muted-foreground">Competitive Intelligence Platform</p>
                 </div>
-                <div className="bg-body-tertiary rounded-3 custom-left-border p-3 mb-3">
-                    Join executives from 500+ companies tracking competitor intelligence
+                
+                <div className="bg-accent/50 rounded-lg border-l-4 border-l-primary p-4 mb-6">
+                    <p className="text-sm text-foreground">
+                        Join executives from 500+ companies tracking competitor intelligence
+                    </p>
                 </div>
-                <form onSubmit={handleSubmit} className="needs-validation" noValidate>
-                    <div className="mb-3 text-start">
-                        <label htmlFor="name" className="form-label"> Full Name </label>
+                
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-foreground mb-1.5">
+                            Full Name
+                        </label>
                         <input
                             type="text"
-                            className="form-control form-control-lg"
+                            className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                             id="name"
                             name="fname"
                             onChange={handleChange}
                             value={registerData.fname}
                             required
                         />
-                        <div className="invalid-feedback">
-                            Please enter your full name.
-                        </div>
                     </div>
-                    <div className="mb-3 text-start">
-                        <label htmlFor="email" className="form-label"> Email </label>
+                    
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
+                            Email
+                        </label>
                         <input
-                            type="text"
-                            className="form-control form-control-lg"
+                            type="email"
+                            className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                             id="email"
                             name="email"
                             onChange={handleChange}
                             value={registerData.email}
                             required
                         />
-                        <div className="invalid-feedback">
-                            Please enter your email.
-                        </div>
                     </div>
-                    <div className="mb-3 text-start">
-                        <label htmlFor="pw" className="form-label"> Password </label>
+                    
+                    <div>
+                        <label htmlFor="pw" className="block text-sm font-medium text-foreground mb-1.5">
+                            Password
+                        </label>
                         <input
-                            type="text"
-                            className="form-control form-control-lg"
+                            type="password"
+                            className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                             id="pw"
                             name="password"
                             onChange={handleChange}
                             value={registerData.password}
                             required
                         />
-                        <div className="invalid-feedback">
-                            Please enter your password.
-                        </div>
-                        {error && (<div className="text-danger my-3"> {error} </div>)}
-                        {/* <span className="text-secondary fw-bold" style={{ fontSize: '14px' }} > Minimum 8 characters with uppercase, lowercase, and number </span> */}
+                        {error && (
+                            <div className="text-destructive text-sm mt-2">
+                                {error}
+                            </div>
+                        )}
                     </div>
-                    <button type="submit" className="btn btn-custom-blue col-12">
+                    
+                    <button
+                        type="submit"
+                        className="w-full py-2.5 bg-primary text-primary-foreground font-medium rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 shadow-md border border-primary/20 cursor-pointer disabled:cursor-not-allowed"
+                        disabled={isLoading}
+                    >
                         {isLoading ? 'Creating...' : 'Create Account'}
                     </button>
                 </form>
-                <hr className="text-secondary" />
-                <div className="text-custom">
-                    Already have an account?
-                    <Link to='/login' className="link-custom text-decoration-none"> Sign in </Link>
+                
+                <hr className="my-6 border-border" />
+                
+                <div className="text-center text-sm text-muted-foreground">
+                    Already have an account?{' '}
+                    <Link to='/login' className="text-primary hover:underline font-medium">
+                        Sign in
+                    </Link>
                 </div>
             </div>
         </div>

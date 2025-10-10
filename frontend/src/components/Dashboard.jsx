@@ -1,0 +1,42 @@
+import CompanyOverview from './dashboard/CompanyOverview'
+import SentimentChart from './dashboard/SentimentChart'
+import StockChart from './dashboard/StockChart'
+import ActivityFeed from './dashboard/ActivityFeed'
+
+export default function Dashboard({ competitor, dateRange, onDateRangeChange }) {
+
+  if (!competitor) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center space-y-3">
+          <div className="text-6xl">🎯</div>
+          <h2 className="text-2xl font-bold text-foreground">Select a Competitor</h2>
+          <p className="text-muted-foreground">
+            Choose a competitor from the sidebar to view their intelligence dashboard
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+  {/* Company Overview Header */}
+  <CompanyOverview competitor={competitor} dateRange={dateRange} onDateRangeChange={onDateRangeChange} />
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SentimentChart competitor={competitor} dateRange={dateRange} />
+        <StockChart competitor={competitor} dateRange={dateRange} />
+      </div>
+
+      {/* Activity Feed - Full Width */}
+      <ActivityFeed competitor={competitor} dateRange={dateRange} />
+
+      {/* Footer */}
+      <footer className="text-center text-xs text-muted-foreground py-4 border-t border-border">
+        Data updated at {new Date().toLocaleString()} • Source: Multiple APIs
+      </footer>
+    </div>
+  )
+}

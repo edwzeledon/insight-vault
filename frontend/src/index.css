@@ -1,39 +1,95 @@
-.bg-custom {
-    background-color: #2c3e50;
-}
-.light-blue{
-    background-color: #2c94d9 !important;
-    color: white !important;
-}
-.btn-custom{
-    background-color: #2c3e50 !important;
-    color: white !important;
-}
-.btn-custom:hover {
-    opacity: 90%;
-}
-.btn-custom-blue{
-    background-color: #3498db  !important;
-    color: white !important;
-}
-.btn-custom-blue:hover {
-    background-color: #2c85c0  !important;
-}
-.bg-light-blue-subtle {
-    background-color: #3498db1A !important;
-}
-.link-custom{
-    color: #3498db !important;
-}
-.link-custom:hover{
-    opacity: 90%;
-}
-.custom-left-border {
-    border-left: 5px solid #3498db !important;
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+    
+    /* Sentiment Colors */
+    --sentiment-positive: 142 76% 36%;
+    --sentiment-positive-bg: 142 76% 96%;
+    --sentiment-negative: 0 84.2% 60.2%;
+    --sentiment-negative-bg: 0 84.2% 97%;
+    --sentiment-neutral: 43 96% 56%;
+    --sentiment-neutral-bg: 48 96% 95%;
   }
-.text-custom{
-    color: #3498db !important;
-}
-.bg-extra-light-gray {
-    background-color: #e9ecef !important;
+
+  * {
+    border-color: hsl(var(--border));
   }
+  
+  body {
+    margin: 0;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Smooth Transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sentiment Indicator Bubbles */
+.sentiment-bubble {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+}
+
+.sentiment-bubble-positive {
+  background-color: hsl(var(--sentiment-positive));
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.sentiment-bubble-negative {
+  background-color: hsl(var(--sentiment-negative));
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.sentiment-bubble-neutral {
+  background-color: hsl(var(--sentiment-neutral));
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}

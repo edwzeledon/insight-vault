@@ -102,13 +102,8 @@ InsightVault/
 │   ├── db/                 # Database connection
 │   └── config/             # Configuration files
 │
-├── frontend/               # Original React app (Bootstrap)
-│   └── src/
-│       ├── features/       # Feature-based modules
-│       ├── components/     # Shared components
-│       └── stores/         # Zustand state management
 │
-└── frontend-temp/          # New React app (Tailwind + shadcn)
+└── frontend/          # React app (Tailwind + shadcn)
     └── src/
         ├── features/
         │   ├── auth/       # Login/Register pages

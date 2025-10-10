@@ -15,9 +15,6 @@
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [API Documentation](#api-documentation)
-- [Design Philosophy](#design-philosophy)
-- [Development Roadmap](#development-roadmap)
-- [Contributing](#contributing)
 
 ---
 

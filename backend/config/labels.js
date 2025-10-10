@@ -17,6 +17,22 @@ const LABELS = [
     'Philanthropy',
     'Market Expansion',
     'Pricing Change',
+    'Partnership/Collaboration',
+    'Product Sunset/Deprecation',
+    'Security Vulnerability',
+    'Data Privacy',
+    'Outage/Service Disruption',
+    'Feature Rollout',
+    'Platform Support/Compatibility',
+    'Executive Interview/Statement',
+    'IPO/SPAC',
+    'Stock Movement',
+    'Geographic Expansion',
+    'Sustainability/ESG',
+    'Awards/Recognition',
+    'Conference/Event Announcement',
+    'Patent/Intellectual Property',
+    'Analyst Rating/Upgrade',
     'other'
 ]
 

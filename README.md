@@ -95,7 +95,7 @@ Built with the philosophy: **"One interaction = One clear insight"**
 ## 🏗️ Architecture
 
 ```
-InsightVault/
+insight-vault/
 ├── backend/                 # Node.js + Express API
 │   ├── controllers/        # Route handlers
 │   ├── services/           # Business logic
@@ -125,7 +125,7 @@ InsightVault/
 
 ## 🛠️ Tech Stack
 
-### Frontend (`frontend-temp/`)
+### Frontend
 - **Framework**: React 19.1.1 + Vite 7.1.9
 - **Routing**: React Router DOM 6.x
 - **State Management**: Zustand
@@ -165,8 +165,8 @@ InsightVault/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/edwzeledon/InsightVault.git
-   cd InsightVault
+   git clone https://github.com/edwzeledon/insight-vault.git
+   cd insight-vault
    ```
 
 2. **Set up the backend**
@@ -181,17 +181,17 @@ InsightVault/
    # Backend runs on http://localhost:3000
    ```
 
-3. **Set up the frontend (new version)**
+3. **Set up the frontend**
    ```bash
-   cd ../frontend-temp
+   cd ../frontend
    npm install
    npm run dev
-   # Frontend runs on http://localhost:5175
+   # Frontend runs on http://localhost:5173
    ```
 
 4. **Open your browser**
    ```
-   Navigate to http://localhost:5175
+   Navigate to http://localhost:5173
    ```
 
 ### Default Ports
@@ -199,8 +199,7 @@ InsightVault/
 | Service        | Port  | URL                        |
 |---------------|-------|----------------------------|
 | Backend API   | 3000  | http://localhost:3000      |
-| Frontend (new)| 5175  | http://localhost:5175      |
-| Frontend (old)| 5173  | http://localhost:5173      |
+| Frontend      | 5173  | http://localhost:5173      |
 
 ---
 
@@ -209,7 +208,7 @@ InsightVault/
 ### Key Files
 
 ```
-frontend-temp/src/
+frontend/src/
 ├── App.jsx                          # Route configuration + auth check
 ├── main.jsx                         # App entry point with BrowserRouter
 ├── index.css                        # Global styles + design tokens
@@ -370,78 +369,6 @@ Authorization: Bearer {accessToken}
 
 ---
 
-## 🎨 Design Philosophy
-
-### Core Principles
-
-1. **One Interaction = One Clear Insight**
-   - Every element serves a purpose
-   - No redundant information
-   - Immediate visual hierarchy
-
-2. **Calm Yet Powerful**
-   - Whitespace dominance (60%+ empty space)
-   - Minimal color variety (3-4 colors max)
-   - Smooth, purposeful animations
-
-3. **Semantic Framing**
-   - Color-coded sentiment (red/yellow/green)
-   - Contextual micro-copy
-   - Progressive disclosure
-
-4. **Executive-First**
-   - Scannable at a glance
-   - High-level metrics first
-   - Drill-down on demand
-
-### Color Psychology
-
-- **Primary Blue** - Trust, stability, platform branding
-- **Sentiment Green** - Positive trends, growth
-- **Sentiment Red** - Negative trends, alerts
-- **Sentiment Yellow** - Neutral, caution
-- **Gray Scale** - Supporting text, backgrounds
-
----
-
-## 🗺️ Development Roadmap
-
-### Phase 1: Foundation ✅ (Complete)
-- [x] Authentication system (JWT + refresh tokens)
-- [x] User registration and login
-- [x] Database integration for competitors
-- [x] Basic dashboard layout
-- [x] Competitor add/remove functionality
-- [x] Design system implementation (Tailwind + shadcn)
-
-### Phase 2: Data Integration 🔄 (In Progress)
-- [ ] Real-time sentiment analysis API
-- [ ] Stock price integration (Yahoo Finance / Alpha Vantage)
-- [ ] News aggregation API
-- [ ] Social media monitoring API
-- [ ] Market share data source
-- [ ] Media mentions tracking
-
-### Phase 3: Advanced Features 📅 (Planned)
-- [ ] WebSocket for real-time updates
-- [ ] Email/SMS alerts for sentiment changes
-- [ ] Custom competitor logos/branding
-- [ ] Export reports (PDF/CSV)
-- [ ] Team collaboration features
-- [ ] Advanced filtering and search
-- [ ] Historical data comparison
-- [ ] AI-powered insights and summaries
-
-### Phase 4: Scale & Optimize 📅 (Future)
-- [ ] Performance optimization
-- [ ] CDN integration for assets
-- [ ] Database query optimization
-- [ ] Caching strategy (Redis)
-- [ ] Rate limiting and throttling
-- [ ] Multi-region deployment
-- [ ] Mobile app (React Native)
-
----
 
 ## 🔧 Configuration
 
@@ -466,70 +393,6 @@ VITE_API_BASE_URL=http://localhost:3000
 
 ---
 
-## 🧪 Testing
-
-### Running Tests
-
-```bash
-# Backend tests
-cd backend
-npm test
-
-# Frontend tests
-cd frontend-temp
-npm test
-```
-
-### Test Coverage Goals
-- Backend: 80%+ coverage
-- Frontend: 70%+ coverage
-- E2E: Critical user flows
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### Code Style
-
-- **Frontend**: ESLint + Prettier (follows Airbnb style guide)
-- **Backend**: ESLint + Prettier
-- **Commits**: Conventional Commits format
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
 ## 👥 Authors
 
 - **Edwin Zeledon** - [@edwzeledon](https://github.com/edwzeledon)
-
----
-
-## 🙏 Acknowledgments
-
-- [shadcn/ui](https://ui.shadcn.com/) - Design system inspiration
-- [Recharts](https://recharts.org/) - Chart library
-- [Radix UI](https://www.radix-ui.com/) - Unstyled accessible components
-- [Lucide Icons](https://lucide.dev/) - Beautiful icon set
-
----
-
-## 📞 Support
-
-For support, email support@insightvault.com or open an issue on GitHub.
-
----
-
-**Built with ❤️ for competitive intelligence teams**

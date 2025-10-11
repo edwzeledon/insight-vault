@@ -10,6 +10,9 @@ export default function DashboardPage() {
   const [selectedCompetitor, setSelectedCompetitor] = useState(null)
   const [dateRange, setDateRange] = useState('30')
   const [isLoading, setIsLoading] = useState(false)
+  const [newsItems, setNewsItems] = useState([])
+  const [isNewsLoading, setIsNewsLoading] = useState(false)
+  const [newsError, setNewsError] = useState(null)
 
   // Fetch user competitors from backend on mount
   useEffect(() => {
@@ -43,6 +46,43 @@ export default function DashboardPage() {
     
     getUserCompetitors()
   }, [accessToken])
+
+  // Fetch news for selected competitor
+  useEffect(() => {
+    const fetchNews = async () => {
+      if (!accessToken || !selectedCompetitor?.id) return
+      setIsNewsLoading(true)
+      setNewsError(null)
+      try {
+        const response = await fetch(`http://localhost:3000/news/${selectedCompetitor.id}`, {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        })
+        if (!response.ok) {
+          throw new Error(`Failed to fetch news (${response.status})`)
+        }
+        const rows = await response.json()
+        // Transform backend rows to ActivityFeed item shape
+        const transformed = (rows || []).map((row) => ({
+          id: row.id,
+          type: 'news',
+          source: row.source,
+          headline: row.headline,
+          excerpt: row.description,
+          timestamp: new Date(row.published_at),
+          // sentiment: (row.sentiment || 'neutral').toLowerCase(),
+          url: row.url || '#'
+        }))
+        setNewsItems(transformed)
+      } catch (err) {
+        console.error('Error fetching news:', err)
+        setNewsError(err.message || 'Failed to load news')
+        setNewsItems([])
+      } finally {
+        setIsNewsLoading(false)
+      }
+    }
+    fetchNews()
+  }, [accessToken, selectedCompetitor?.id])
 
   // Format competitor name (capitalize first letter)
   const formatName = (str) => {
@@ -142,6 +182,9 @@ export default function DashboardPage() {
             competitor={selectedCompetitor}
             dateRange={dateRange}
             onDateRangeChange={setDateRange}
+            newsItems={newsItems}
+            isNewsLoading={isNewsLoading}
+            newsError={newsError}
           />
         </main>
       </div>

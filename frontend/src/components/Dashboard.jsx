@@ -3,7 +3,7 @@ import SentimentChart from './dashboard/SentimentChart'
 import StockChart from './dashboard/StockChart'
 import ActivityFeed from './dashboard/ActivityFeed'
 
-export default function Dashboard({ competitor, dateRange, onDateRangeChange }) {
+export default function Dashboard({ competitor, dateRange, onDateRangeChange, newsItems, isNewsLoading, newsError }) {
 
   if (!competitor) {
     return (
@@ -31,7 +31,13 @@ export default function Dashboard({ competitor, dateRange, onDateRangeChange }) 
       </div>
 
       {/* Activity Feed - Full Width */}
-      <ActivityFeed competitor={competitor} dateRange={dateRange} />
+      <ActivityFeed 
+        competitor={competitor}
+        dateRange={dateRange}
+        items={newsItems}
+        isLoading={isNewsLoading}
+        error={newsError}
+      />
 
       {/* Footer */}
       <footer className="text-center text-xs text-muted-foreground py-4 border-t border-border">

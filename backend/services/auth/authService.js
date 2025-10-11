@@ -6,16 +6,24 @@ import bcrypt from "bcryptjs";
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
+// Custom error class for user-facing errors
+class UserError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UserError';
+    }
+}
+
 export const handleRegister = async ({ email, password, fname }) => {
     if (email === undefined || email.length == 0
         || password === undefined || password.length == 0
         || fname === undefined || fname.length == 0
     ) {
-        throw new Error('Please fill in all required fields')
+        throw new UserError('Please fill in all required fields')
     }
 
     if (await isDupEmail(email)) {
-        throw new Error('User with that email already exists')
+        throw new UserError('User with that email already exists')
     }
 
     try {
@@ -41,6 +49,7 @@ export const handleRegister = async ({ email, password, fname }) => {
         await pool.query(addtoken, addTokenVals)
         return { accessToken, refreshToken }
     } catch (err) {
+        if (err instanceof UserError) throw err;
         throw new Error('Internal Server Error')
     }
 }
@@ -50,7 +59,7 @@ export const handleLogin = async ({ email, password }) => {
         if (email === undefined || email.length == 0
             || password === undefined || password.length == 0
         ) {
-            throw new Error('Please fill in all required fields')
+            throw new UserError('Please fill in all required fields')
         }
 
         const sql = `
@@ -62,14 +71,14 @@ export const handleLogin = async ({ email, password }) => {
         const results = await pool.query(sql, values)
 
         if (!results.rowCount) {
-            throw new Error('User with this email does not exist')
+            throw new UserError('User with this email does not exist')
         }
 
         const hashedPw = results.rows[0].password
         const isPwMatch = await bcrypt.compare(password, hashedPw)
 
         if (!isPwMatch) {
-            throw new Error('Invalid Password')
+            throw new UserError('Invalid Password')
         }
 
         const userId = results.rows[0].id
@@ -85,6 +94,7 @@ export const handleLogin = async ({ email, password }) => {
         await pool.query(addtoken, addTokenVals)
         return { accessToken, refreshToken }
     } catch (error) {
+        if (error instanceof UserError) throw error;
         throw new Error("Internal Server Error")
     }
 }

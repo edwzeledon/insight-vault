@@ -8,6 +8,22 @@ import { computeContentHash, clusterArticles } from '../dedupe/dedupeService.js'
 
 const newsurl = 'https://newsapi.org/v2/everything'
 
+export const handleLatestNewsGet = async (id) => {
+    try {
+        const sql = `
+            SELECT id, published_at, label, headline, sentiment, cluster_id, is_representative, relevance_score, description, source, url
+            FROM sift_db.media
+            WHERE org_id=$1
+            ORDER BY published_at DESC
+            LIMIT 6;
+        `
+        const results = await pool.query(sql, [id])
+        return results.rows
+    } catch (err) {
+        throw new Error('Internal Server Error')
+    }
+}
+
 export const handleLatestNewsFetch = async ({ id }) => {
     //get the latest news date given org id
     const { date, org } = await getOrgLatestNewsDate(id)
@@ -100,7 +116,7 @@ const getArticlesSentiment = async (articles) => {
 const saveArticles = async (articles, id) => {
     // Use Promise.all to properly handle async operations
     await Promise.all(articles.map(async (article) => {
-        const { publishedAt, label, sentiment, title, description, cluster_id, is_representative, relevance_score, url } = article
+        const { publishedAt, label, sentiment, title, description, cluster_id, is_representative, relevance_score, url, source } = article
 
         // Compute content hash for cross-run deduplication (include URL to allow multi-outlet storage)
         const contentHash = computeContentHash(`${title} ${url || ''}`, description)
@@ -117,10 +133,24 @@ const saveArticles = async (articles, id) => {
         if (existing.rowCount > 0) return
 
         const sql = `
-            INSERT INTO sift_db.media (type_id, org_id, published_at, label, headline, sentiment, content_hash, cluster_id, is_representative, relevance_score)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+            INSERT INTO sift_db.media 
+                (type_id, 
+                org_id, 
+                published_at, 
+                label, 
+                headline, 
+                sentiment, 
+                content_hash, 
+                cluster_id, 
+                is_representative, 
+                relevance_score, 
+                description,
+                source,
+                url
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
         `
-        const values = [1, id, publishedAt, label, title, sentiment, contentHash, cluster_id || null, is_representative || false, relevance_score || null]
+        const values = [1, id, publishedAt, label, title, sentiment, contentHash, cluster_id || null, is_representative || false, relevance_score || null, description, source.name, url]
         await pool.query(sql, values)
     }))
 }

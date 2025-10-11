@@ -93,6 +93,23 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
           </div>
         </div>
 
+        {/* Market Share Box */}
+        <div className="bg-card rounded-lg border border-border shadow-sm p-5">
+          <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2 flex items-center gap-1">
+            <PieChart className="w-3 h-3" />
+            Market Share
+          </div>
+          <div className="flex items-baseline gap-2 mb-1">
+            <span className="text-3xl font-bold text-foreground">{marketShare}%</span>
+          </div>
+          <div className={`text-sm flex items-center gap-1 ${
+            marketShareChange > 0 ? 'text-sentiment-positive' : 'text-sentiment-negative'
+          }`}>
+            {marketShareChange > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+            {marketShareChange > 0 ? '+' : ''}{marketShareChange}% this quarter
+          </div>
+        </div>
+
         {/* Media Mentions Box */}
         <div className="bg-card rounded-lg border border-border shadow-sm p-5">
           <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2 flex items-center gap-1">
@@ -108,23 +125,6 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
           }`}>
             {mediaMentionsChange > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             {mediaMentionsChange > 0 ? '+' : ''}{mediaMentionsChange}% vs last week
-          </div>
-        </div>
-
-        {/* Market Share Box */}
-        <div className="bg-card rounded-lg border border-border shadow-sm p-5">
-          <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2 flex items-center gap-1">
-            <PieChart className="w-3 h-3" />
-            Market Share
-          </div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-bold text-foreground">{marketShare}%</span>
-          </div>
-          <div className={`text-sm flex items-center gap-1 ${
-            marketShareChange > 0 ? 'text-sentiment-positive' : 'text-sentiment-negative'
-          }`}>
-            {marketShareChange > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {marketShareChange > 0 ? '+' : ''}{marketShareChange}% this quarter
           </div>
         </div>
       </div>

@@ -38,7 +38,7 @@ export default function TopBar() {
       <div className="flex items-center gap-3">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors cursor-pointer"
           title="Logout"
         >
           <LogOut className="w-4 h-4" />

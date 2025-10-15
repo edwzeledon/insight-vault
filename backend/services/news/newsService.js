@@ -11,7 +11,7 @@ const newsurl = 'https://newsapi.org/v2/everything'
 export const handleLatestNewsGet = async (id) => {
     try {
         const sql = `
-            SELECT id, published_at, label, headline, sentiment, cluster_id, is_representative, relevance_score, description, source, url
+            SELECT id, published_at, headline, sentiment, cluster_id, is_representative, relevance_score, description, source, url
             FROM sift_db.media
             WHERE org_id=$1
             ORDER BY published_at DESC
@@ -36,9 +36,6 @@ export const handleLatestNewsFetch = async ({ id }) => {
 
     //cluster articles (store-all, display-one later using is_representative)
     articles = clusterArticles(articles, 0.40)
-
-    //add labels for each article 
-    articles = await getArticleLabels(articles)
 
     //add sentiment for each article
     articles = await getArticlesSentiment(articles)
@@ -116,7 +113,7 @@ const getArticlesSentiment = async (articles) => {
 const saveArticles = async (articles, id) => {
     // Use Promise.all to properly handle async operations
     await Promise.all(articles.map(async (article) => {
-        const { publishedAt, label, sentiment, title, description, cluster_id, is_representative, relevance_score, url, source } = article
+        const { publishedAt, sentiment, title, description, cluster_id, is_representative, relevance_score, url, source } = article
 
         // Compute content hash for cross-run deduplication (include URL to allow multi-outlet storage)
         const contentHash = computeContentHash(`${title} ${url || ''}`, description)
@@ -137,7 +134,6 @@ const saveArticles = async (articles, id) => {
                 (type_id, 
                 org_id, 
                 published_at, 
-                label, 
                 headline, 
                 sentiment, 
                 content_hash, 
@@ -148,9 +144,9 @@ const saveArticles = async (articles, id) => {
                 source,
                 url
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
         `
-        const values = [1, id, publishedAt, label, title, sentiment, contentHash, cluster_id || null, is_representative || false, relevance_score || null, description, source.name, url]
+        const values = [1, id, publishedAt, title, sentiment, contentHash, cluster_id || null, is_representative || false, relevance_score || null, description, source.name, url]
         await pool.query(sql, values)
     }))
 }

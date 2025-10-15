@@ -6,6 +6,7 @@ import { expressjwt } from 'express-jwt';
 import pool from './db/pool.js'
 import authRoutes from './routes/authRoutes.js'
 import newsRoutes from './routes/newsRoutes.js'
+import { startNewsScheduler } from './services/jobs/newsJob.js'
 
 import gplay from "google-play-scraper";
 
@@ -129,3 +130,6 @@ app.delete('/userCompetitors/:id', async (req, res) => {
 app.listen(port, () => {
     console.log(`Serving running on port ${port}`)
 })
+
+// Start background jobs
+startNewsScheduler()

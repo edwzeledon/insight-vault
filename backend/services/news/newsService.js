@@ -1,7 +1,7 @@
 import dotenv, { config } from 'dotenv';
 dotenv.config()
 import fetch from 'node-fetch';
-import { classifyHeadline, getSentiment } from '../hf/hfService.js';
+import { getSentiment } from '../hf/hfService.js';
 import pool from '../../db/pool.js'
 import { TRUSTED_DOMAINS } from '../../config/newsSources.js'
 import { computeContentHash, clusterArticles } from '../dedupe/dedupeService.js'
@@ -64,8 +64,10 @@ const getOrgLatestNewsDate = async (id) => {
             date.setMonth(date.getMonth() - 1)
             return { date: date.toISOString().split('T')[0], org: orgResults.rows[0].name }
         }
-        // else, we have a latest date, and the org name
-        return { date: results.rows[0].published_at, org: results.rows[0].name }
+        // else, we have a latest date (formatted), and the org name
+        let date = results.rows[0].published_at
+        date = date.toISOString().split('T')[0]
+        return { date, org: results.rows[0].name }
     } catch (err) {
         throw new Error('Internal Server Error')
     }
@@ -92,14 +94,6 @@ const filterArticlesByOrgName = (articles, orgName) => {
         const org = orgName.toLowerCase()
         return title.includes(org)
     })
-}
-
-const getArticleLabels = async (articles) => {
-    return Promise.all(articles.map(async (article) => {
-        const text = (article.title + " " + article.description).toLowerCase()
-        const label = await classifyHeadline(text)
-        return { ...article, label }
-    }))
 }
 
 const getArticlesSentiment = async (articles) => {

@@ -69,7 +69,7 @@ export default function DashboardPage() {
           headline: row.headline,
           excerpt: row.description,
           timestamp: new Date(row.published_at),
-          // sentiment: (row.sentiment || 'neutral').toLowerCase(),
+          sentiment: (row.sentiment || 'neutral').toLowerCase(),
           url: row.url || '#'
         }))
         setNewsItems(transformed)

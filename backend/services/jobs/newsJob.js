@@ -3,6 +3,8 @@ import { handleLatestNewsFetch } from '../news/newsService.js'
 
 let isNewsJobRunning = false
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
 const fetchNewsForTrackedOrgs = async () => {
   if (isNewsJobRunning) return
   isNewsJobRunning = true
@@ -11,12 +13,18 @@ const fetchNewsForTrackedOrgs = async () => {
     // Query orgs to update; currently all organizations
     const { rows } = await pool.query('SELECT id FROM sift_db.organizations;')
     const ids = rows.map((r) => r.id)
-    for (const id of ids) {
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i]
       try {
         await handleLatestNewsFetch({ id })
         console.log(`[news-cron] Updated news for org ${id}`)
       } catch (err) {
         console.error(`[news-cron] Failed to update org ${id}:`, err?.message || err)
+      }
+      // Wait 15s before processing next org (skip delay after last org)
+      if (i < ids.length - 1) {
+        console.log(`[news-cron] Waiting 30s before next org...`)
+        await delay(30_000)
       }
     }
   } catch (err) {

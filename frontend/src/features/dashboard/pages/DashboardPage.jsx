@@ -17,7 +17,7 @@ export default function DashboardPage() {
   // Fetch user competitors from backend on mount
   useEffect(() => {
     if (!accessToken) return
-    
+
     const getUserCompetitors = async () => {
       try {
         const response = await fetch('http://localhost:3000/getUserCompetitors', {
@@ -69,7 +69,7 @@ export default function DashboardPage() {
           headline: row.headline,
           excerpt: row.description,
           timestamp: new Date(row.published_at),
-          sentiment: (row.sentiment || 'neutral').toLowerCase(),
+          sentiment: (row.sentiment || '1').toLowerCase(),
           url: row.url || '#'
         }))
         setNewsItems(transformed)
@@ -82,6 +82,28 @@ export default function DashboardPage() {
       }
     }
     fetchNews()
+  }, [accessToken, selectedCompetitor?.id])
+
+  useEffect(()=> {
+    const fetchCompetitorData = async () => {
+      if (!accessToken || !selectedCompetitor) return
+      try {
+        const response = await fetch(`http://localhost:3000/stocks/${selectedCompetitor.id}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        })
+        if (!response.ok) {
+          throw new Error(`Failed to fetch competitor data (${response.status})`)
+        }
+        const data = await response.json()
+        // Update local state with fetched data
+        setCompetitors(prev => prev.map(comp => comp.id === selectedCompetitor.id ? { ...comp, ...data } : comp))
+      } catch (err) {
+        console.error('Error fetching competitor data:', err)
+      }
+    }
+    fetchCompetitorData()
   }, [accessToken, selectedCompetitor?.id])
 
   // Format competitor name (capitalize first letter)

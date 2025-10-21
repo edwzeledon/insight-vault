@@ -10,7 +10,6 @@ const sentimentMap = {
     'positive': 2 // positive
 }
 
-
 export const getSentiment = async (text) => {
     const response = await fetch(`${hfurl}/cardiffnlp/twitter-roberta-base-sentiment`, {
         method: 'POST',

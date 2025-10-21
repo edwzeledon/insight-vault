@@ -6,10 +6,9 @@ import { expressjwt } from 'express-jwt';
 import pool from './db/pool.js'
 import authRoutes from './routes/authRoutes.js'
 import newsRoutes from './routes/newsRoutes.js'
+import stockRoutes from './routes/stockRoutes.js'
 import { startNewsScheduler } from './services/jobs/newsJob.js'
-
-import gplay from "google-play-scraper";
-
+import { startStockScheduler } from './services/stock/stockService.js';
 const port = 3000
 const app = express()
 
@@ -27,13 +26,14 @@ app.use(cookieParser())
 //ROUTES
 app.use('/auth', authRoutes)
 app.use('/news', newsRoutes)
+app.use('/stocks', stockRoutes)
 
 app.post('/addcompetitor', async (req, res) => {
     try {
-        const org = req.body.name
+        const orgName = req.body.name
         const id = req.auth.userId
 
-        if (org === undefined || org.length == 0) {
+        if (orgName === undefined || orgName.length == 0) {
             return res.status(500).json({ error: 'Please fill in required field' })
         }
         if (id === undefined || id.length == 0) {
@@ -45,26 +45,25 @@ app.post('/addcompetitor', async (req, res) => {
             FROM sift_db.organizations
             WHERE name ILIKE $1;
         `
-        const dupOrgResults = await pool.query(checkOrgDup, [org])
+        const dupOrgResults = await pool.query(checkOrgDup, [orgName])
 
-        let appId
+        let orgId
         if (!dupOrgResults.rowCount) {
-            //insert new org, get play store id
-            const appResults = await gplay.search({ term: org, num: 1 })
-            appId = appResults.length ? appResults[0].appId : null
-
+            //insert new org, get their company symbol
+            const orgResults = await fetch (`https://query1.finance.yahoo.com/v1/finance/search?q=${orgName}`)
+            const orgData = await orgResults.json()
+            const orgSymbol = orgData.quotes.length ? orgData.quotes[0].symbol : null
+        
             const insertOrg = `
-                INSERT INTO sift_db.organizations (name, app_id)
+                INSERT INTO sift_db.organizations (name, symbol)
                 VALUES ($1, $2)
                 RETURNING *;
             `
-            const values = [org, appId]
+            const values = [orgName, orgSymbol]
             const results = await pool.query(insertOrg, values)
-            if (results.rowCount) {
-                appId = results.rows[0].id
-            }
+            orgId = results.rows[0].id
         } else {
-            appId = dupOrgResults.rows[0].id
+            orgId = dupOrgResults.rows[0].id
         }
 
         //connect user id to org
@@ -73,9 +72,9 @@ app.post('/addcompetitor', async (req, res) => {
             VALUES ($1, $2)
             ON CONFLICT (user_id, org_id) DO NOTHING;
         `
-        const values = [id, appId]
+        const values = [id, orgId]
         await pool.query(addRelation, values)
-        res.status(200).json({ message: 'succesfully added new competitor', org_id: appId })
+        res.status(200).json({ message: 'succesfully added new competitor', org_id: orgId })
 
     } catch (err) {
         console.log(err)
@@ -132,4 +131,5 @@ app.listen(port, () => {
 })
 
 // Start background jobs
-startNewsScheduler()
+// startNewsScheduler()
+// startStockScheduler()

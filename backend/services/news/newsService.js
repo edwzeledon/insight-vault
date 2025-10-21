@@ -1,4 +1,4 @@
-import dotenv, { config } from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config()
 import fetch from 'node-fetch';
 import { getSentiment } from '../hf/hfService.js';

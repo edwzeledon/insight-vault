@@ -17,11 +17,11 @@ const getSourceIcon = (type) => {
 
 const getSentimentStyles = (sentiment) => {
   switch (sentiment) {
-    case 'positive':
+    case '2':
       return 'bg-sentiment-positive-bg border-l-sentiment-positive'
-    case 'negative':
+    case '0':
       return 'bg-sentiment-negative-bg border-l-sentiment-negative'
-    case 'neutral':
+    case '1':
       return 'bg-sentiment-neutral-bg border-l-sentiment-neutral'
     default:
       return 'bg-muted border-l-border'

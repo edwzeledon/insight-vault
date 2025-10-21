@@ -36,59 +36,6 @@ Built with the philosophy: **"One interaction = One clear insight"**
 
 ---
 
-## ✨ Features
-
-### Authentication & Authorization
-- ✅ User registration and login
-- ✅ JWT access tokens with HTTP-only refresh tokens
-- ✅ Automatic token refresh on app mount
-- ✅ Protected routes and API endpoints
-- ✅ Secure logout with cookie clearing
-
-### Competitor Management
-- ✅ Fetch user's tracked competitors from database
-- ✅ Add new competitors with API integration
-- ✅ Remove competitors with confirmation modal
-- ✅ Search and filter competitors
-- ✅ Real-time sync with backend
-- ✅ Duplicate prevention
-- 🔄 Custom competitor logos (coming soon)
-
-### Dashboard Analytics
-- ✅ Company overview with key metrics
-- ✅ Daily sentiment score with trend indicators
-- ✅ Stock price with daily change percentage
-- ✅ Media mentions tracking (weekly)
-- ✅ Market share percentage
-- ✅ Date range filtering (7, 30, 90, 180 days)
-- 🔄 Real-time sentiment data integration (in progress)
-- 🔄 Real-time stock data integration (in progress)
-
-### Data Visualization
-- ✅ Sentiment trend charts (Recharts)
-- ✅ Stock performance area charts
-- ✅ Color-coded sentiment indicators (red/yellow/green)
-- ✅ Responsive grid layouts
-- ✅ Interactive tooltips and hover states
-
-### Activity Feed
-- ✅ Multi-source activity tracking (news, social, reports)
-- ✅ Sentiment overlay on activity cards
-- ✅ 2-column responsive grid
-- ✅ Time-ago formatting
-- ✅ External link navigation
-- 🔄 Real-time updates via WebSocket (coming soon)
-
-### User Experience
-- ✅ Loading states with spinners
-- ✅ Error handling with fallbacks
-- ✅ Smooth animations and transitions
-- ✅ Custom confirmation modals
-- ✅ Toast notifications (planned)
-- ✅ Dark mode support (infrastructure ready)
-
----
-
 ## 🏗️ Architecture
 
 ```
@@ -118,37 +65,7 @@ insight-vault/
         └── lib/            # Utility functions
 ```
 
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **Framework**: React 19.1.1 + Vite 7.1.9
-- **Routing**: React Router DOM 6.x
-- **State Management**: Zustand
-- **Styling**: Tailwind CSS 4.x + @tailwindcss/postcss
-- **UI Components**: Radix UI primitives (Select, Avatar, Dialog, Dropdown)
-- **Charts**: Recharts 2.x
-- **Icons**: Lucide React
-- **Utilities**: clsx, tailwind-merge
-
-### Backend
-- **Runtime**: Node.js 16+
-- **Framework**: Express.js
-- **Database**: PostgreSQL (assumed)
-- **Authentication**: JWT (jsonwebtoken)
-- **API Style**: RESTful
-
-### Design System
-- **Color Scheme**: HSL-based with CSS variables
-- **Sentiment Colors**: 
-  - Positive: `hsl(142 76% 36%)` - Green
-  - Negative: `hsl(0 84.2% 60.2%)` - Red
-  - Neutral: `hsl(43 96% 56%)` - Yellow
-- **Primary Color**: `hsl(221.2 83.2% 53.3%)` - Blue
-- **Border Radius**: 0.5rem default
-
----
+--
 
 ## 🚀 Getting Started
 

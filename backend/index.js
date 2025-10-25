@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js'
 import newsRoutes from './routes/newsRoutes.js'
 import stockRoutes from './routes/stockRoutes.js'
 import overviewRoutes from './routes/overviewRoutes.js'
+import { fetchAndSaveHistoricalData } from './services/stock/historicalStockService.js'
 import { startNewsScheduler } from './services/jobs/newsJob.js'
 import { startStockScheduler } from './services/jobs/stockJob.js'
 const port = 3000
@@ -64,6 +65,13 @@ app.post('/addcompetitor', async (req, res) => {
             const values = [orgName, orgSymbol]
             const results = await pool.query(insertOrg, values)
             orgId = results.rows[0].id
+            
+            // Fetch historical stock data asynchronously (don't wait for it)
+            if (orgSymbol) {
+                fetchAndSaveHistoricalData(orgId, orgSymbol).catch(err => {
+                    console.error(`Failed to fetch historical data for ${orgSymbol}:`, err)
+                })
+            }
         } else {
             orgId = dupOrgResults.rows[0].id
         }

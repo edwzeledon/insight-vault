@@ -41,10 +41,37 @@ export default function DashboardPage() {
             name: org.name,
             logo: '🏢', // Default logo, can be customized later
             sentiment: Math.random(), // TODO: Replace with real sentiment from backend
-            stockPrice: (Math.random() * 200 + 50).toFixed(2), // TODO: Replace with real data
-            stockChange: (Math.random() * 10 - 5).toFixed(2) // TODO: Replace with real data
+            stockPrice: null, // Will be fetched from overview
+            stockChange: null // Will be fetched from overview
           }))
           setCompetitors(transformedCompetitors)
+          
+          // Fetch overview data for each competitor to populate stock prices
+          transformedCompetitors.forEach(async (competitor) => {
+            try {
+              const overviewResponse = await fetch(`http://localhost:3000/overview/${competitor.id}?days=7`, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`
+                }
+              })
+              if (overviewResponse.ok) {
+                const data = await overviewResponse.json()
+                if (data.stock && data.stock.currentPrice !== null) {
+                  setCompetitors(prev => prev.map(comp => 
+                    comp.id === competitor.id 
+                      ? { 
+                          ...comp, 
+                          stockPrice: data.stock.currentPrice || null, 
+                          stockChange: data.stock.weekChangePercent || null 
+                        }
+                      : comp
+                  ))
+                }
+              }
+            } catch (err) {
+              console.error(`Error fetching overview for ${competitor.name}:`, err)
+            }
+          })
         }
       } catch (err) {
         console.error('Error fetching user competitors:', err)
@@ -106,17 +133,28 @@ export default function DashboardPage() {
           throw new Error(`Failed to fetch overview data (${response.status})`)
         }
         const data = await response.json()
+        console.log(`Fetched overview for ${selectedCompetitor.name}:`, data)
         
         // Update stock metrics
         if (data.stock) {
           setStockMetrics(data.stock)
-          if (data.stock.currentPrice !== null) {
-            setSelectedCompetitor(prev => ({
-              ...prev,
-              stockPrice: data.stock.currentPrice,
-              stockChange: data.stock.weekChangePercent
-            }))
-          }
+          // Update even if weekChangePercent is null
+          setSelectedCompetitor(prev => ({
+            ...prev,
+            stockPrice: data.stock.currentPrice || null,
+            stockChange: data.stock.weekChangePercent || null
+          }))
+          
+          // Update the competitor in the sidebar list
+          setCompetitors(prev => prev.map(comp => 
+            comp.id === selectedCompetitor.id 
+              ? { 
+                  ...comp, 
+                  stockPrice: data.stock.currentPrice || null, 
+                  stockChange: data.stock.weekChangePercent || null 
+                }
+              : comp
+          ))
         }
         
         // Update media mentions
@@ -216,10 +254,36 @@ export default function DashboardPage() {
           name: formatted.name,
           logo: '🏢',
           sentiment: Math.random(), // TODO: Replace with real sentiment
-          stockPrice: (Math.random() * 200 + 50).toFixed(2), // TODO: Replace with real data
-          stockChange: (Math.random() * 10 - 5).toFixed(2) // TODO: Replace with real data
+          stockPrice: null, // Will be fetched from overview
+          stockChange: null // Will be fetched from overview
         }
         setCompetitors(prev => [...prev, newCompetitor])
+        
+        // Fetch overview data for the new competitor
+        try {
+          const overviewResponse = await fetch(`http://localhost:3000/overview/${results.org_id}?days=7`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          })
+          if (overviewResponse.ok) {
+            const data = await overviewResponse.json()
+            if (data.stock) {
+              setCompetitors(prev => prev.map(comp => 
+                comp.id === results.org_id 
+                  ? { 
+                      ...comp, 
+                      stockPrice: data.stock.currentPrice || null, 
+                      stockChange: data.stock.weekChangePercent || null 
+                    }
+                  : comp
+              ))
+              console.log(`Updated new competitor with price: $${data.stock.currentPrice} (${data.stock.weekChangePercent || 'N/A'}%)`)
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching overview for new competitor:', err)
+        }
       }
       
       setIsLoading(false)

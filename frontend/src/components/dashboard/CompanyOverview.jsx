@@ -112,18 +112,22 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
             <span className="text-3xl font-bold text-foreground">{mediaMentions}</span>
             <span className="text-sm text-muted-foreground">this week</span>
           </div>
-          {mediaMentionsChange !== null ? (
-            <div className={`text-sm flex items-center gap-1 ${
-              parseFloat(mediaMentionsChange) > 0 ? 'text-sentiment-positive' : parseFloat(mediaMentionsChange) < 0 ? 'text-sentiment-negative' : 'text-muted-foreground'
-            }`}>
-              {parseFloat(mediaMentionsChange) > 0 ? <TrendingUp className="w-4 h-4" /> : parseFloat(mediaMentionsChange) < 0 ? <TrendingDown className="w-4 h-4" /> : null}
-              {parseFloat(mediaMentionsChange) > 0 ? '+' : ''}{mediaMentionsChange}% vs last week
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">
-              No comparison data
-            </div>
-          )}
+          <div className={`text-sm flex items-center gap-1 ${
+            mediaMentionsChange !== null && parseFloat(mediaMentionsChange) > 0 ? 'text-sentiment-positive' : 
+            mediaMentionsChange !== null && parseFloat(mediaMentionsChange) < 0 ? 'text-sentiment-negative' : 
+            'text-muted-foreground'
+          }`}>
+            {mediaMentionsChange !== null && parseFloat(mediaMentionsChange) < 0 ? (
+              <TrendingDown className="w-4 h-4" />
+            ) : (
+              <TrendingUp className="w-4 h-4" />
+            )}
+            {mediaMentionsChange !== null ? (
+              <>{parseFloat(mediaMentionsChange) > 0 ? '+' : ''}{mediaMentionsChange}% vs last week</>
+            ) : (
+              <>+0% vs last week</>
+            )}
+          </div>
         </div>
 
         {/* Stock Price Box */}
@@ -137,10 +141,20 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
             </span>
           </div>
           <div className={`text-sm flex items-center gap-1 ${
-            parseFloat(competitor.stockChange) > 0 ? 'text-sentiment-positive' : 'text-sentiment-negative'
+            competitor.stockChange !== null && parseFloat(competitor.stockChange) > 0 ? 'text-sentiment-positive' : 
+            competitor.stockChange !== null && parseFloat(competitor.stockChange) < 0 ? 'text-sentiment-negative' : 
+            'text-muted-foreground'
           }`}>
-            {parseFloat(competitor.stockChange) > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {parseFloat(competitor.stockChange) > 0 ? '+' : ''}{competitor.stockChange}% this week
+            {competitor.stockChange !== null && parseFloat(competitor.stockChange) < 0 ? (
+              <TrendingDown className="w-4 h-4" />
+            ) : (
+              <TrendingUp className="w-4 h-4" />
+            )}
+            {competitor.stockChange !== null ? (
+              <>{parseFloat(competitor.stockChange) > 0 ? '+' : ''}{competitor.stockChange}% this week</>
+            ) : (
+              <>+0% this week</>
+            )}
           </div>
         </div>
       </div>

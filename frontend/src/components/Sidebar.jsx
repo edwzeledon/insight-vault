@@ -141,7 +141,24 @@ export default function Sidebar({ competitors, selectedCompetitor, onSelectCompe
                     {competitor.name}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    ${competitor.stockPrice} ({competitor.stockChange > 0 ? '+' : ''}{competitor.stockChange}%)
+                    {competitor.stockPrice !== null ? (
+                      <>
+                        <span>${competitor.stockPrice}</span>
+                        {competitor.stockChange !== null && (
+                          <span className={
+                            parseFloat(competitor.stockChange) > 0 
+                              ? 'text-sentiment-positive' 
+                              : parseFloat(competitor.stockChange) < 0 
+                                ? 'text-sentiment-negative' 
+                                : 'text-muted-foreground'
+                          }>
+                            {' '}({parseFloat(competitor.stockChange) > 0 ? '+' : ''}{competitor.stockChange}%)
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground/60">Loading...</span>
+                    )}
                   </div>
                 </div>
                 

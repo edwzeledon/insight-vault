@@ -8,16 +8,16 @@ import { computeContentHash, clusterArticles } from '../dedupe/dedupeService.js'
 
 const newsurl = 'https://newsapi.org/v2/everything'
 
-export const handleLatestNewsGet = async (id) => {
+export const handleLatestNewsGet = async (id, limit = 6, offset = 0) => {
     try {
         const sql = `
             SELECT id, published_at, headline, sentiment, cluster_id, is_representative, relevance_score, description, source, url
             FROM sift_db.media
             WHERE org_id=$1
             ORDER BY published_at DESC
-            LIMIT 6;
+            LIMIT $2 OFFSET $3;
         `
-        const results = await pool.query(sql, [id])
+        const results = await pool.query(sql, [id, limit, offset])
         return results.rows
     } catch (err) {
         throw new Error('Internal Server Error')

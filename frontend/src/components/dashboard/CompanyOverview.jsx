@@ -16,6 +16,27 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
     return 'Neutral'
   }
 
+  // Get period label based on date range
+  const getPeriodLabel = () => {
+    const days = parseInt(dateRange)
+    if (days === 7) return 'week'
+    if (days === 30) return 'month'
+    if (days === 90) return '3 months'
+    return 'period'
+  }
+
+  // Get comparison label for trends
+  const getComparisonLabel = () => {
+    const days = parseInt(dateRange)
+    if (days === 7) return 'vs last week'
+    if (days === 30) return 'vs last month'
+    if (days === 90) return 'vs last 3 months'
+    return 'vs previous period'
+  }
+
+  const periodLabel = getPeriodLabel()
+  const comparisonLabel = getComparisonLabel()
+
   return (
     <div className="space-y-4">
       {/* Company Name Header */}
@@ -39,8 +60,7 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
             >
               <option value="7">Past 7 days</option>
               <option value="30">Past 30 days</option>
-              <option value="90">Past 90 days</option>
-              <option value="180">Past 6 months</option>
+              <option value="90">Past 3 months</option>
             </select>
           </div>
         </div>
@@ -98,7 +118,7 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
             )}
           </div>
           <div className="text-xs text-muted-foreground">
-            Past 7 days average
+            Past {dateRange} days average
           </div>
         </div>
 
@@ -110,7 +130,7 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
           </div>
           <div className="flex items-baseline gap-2 mb-1">
             <span className="text-3xl font-bold text-foreground">{mediaMentions}</span>
-            <span className="text-sm text-muted-foreground">this week</span>
+            <span className="text-sm text-muted-foreground">this {periodLabel}</span>
           </div>
           <div className={`text-sm flex items-center gap-1 ${
             mediaMentionsChange !== null && parseFloat(mediaMentionsChange) > 0 ? 'text-sentiment-positive' : 
@@ -123,9 +143,9 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
               <TrendingUp className="w-4 h-4" />
             )}
             {mediaMentionsChange !== null ? (
-              <>{parseFloat(mediaMentionsChange) > 0 ? '+' : ''}{mediaMentionsChange}% vs last week</>
+              <>{parseFloat(mediaMentionsChange) > 0 ? '+' : ''}{mediaMentionsChange}% {comparisonLabel}</>
             ) : (
-              <>+0% vs last week</>
+              <>+0% {comparisonLabel}</>
             )}
           </div>
         </div>
@@ -151,9 +171,9 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
               <TrendingUp className="w-4 h-4" />
             )}
             {competitor.stockChange !== null ? (
-              <>{parseFloat(competitor.stockChange) > 0 ? '+' : ''}{competitor.stockChange}% this week</>
+              <>{parseFloat(competitor.stockChange) > 0 ? '+' : ''}{competitor.stockChange}% this {periodLabel}</>
             ) : (
-              <>+0% this week</>
+              <>+0% this {periodLabel}</>
             )}
           </div>
         </div>

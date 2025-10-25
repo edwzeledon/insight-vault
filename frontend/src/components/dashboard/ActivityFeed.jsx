@@ -1,4 +1,5 @@
-import { ExternalLink, Newspaper, MessageSquare, FileText } from 'lucide-react'
+import { useRef, memo, useMemo } from 'react'
+import { ExternalLink, Newspaper, MessageSquare, FileText, ChevronDown } from 'lucide-react'
 
 const getSourceIcon = (type) => {
   switch (type) {
@@ -28,6 +29,32 @@ const getSentimentStyles = (sentiment) => {
   }
 }
 
+const getSentimentLabel = (sentiment) => {
+  switch (sentiment) {
+    case '2':
+      return 'Positive'
+    case '0':
+      return 'Negative'
+    case '1':
+      return 'Neutral'
+    default:
+      return 'Neutral'
+  }
+}
+
+const getSentimentColor = (sentiment) => {
+  switch (sentiment) {
+    case '2':
+      return 'hsl(var(--sentiment-positive))'
+    case '0':
+      return 'hsl(var(--sentiment-negative))'
+    case '1':
+      return 'hsl(var(--sentiment-neutral))'
+    default:
+      return 'hsl(var(--sentiment-neutral))'
+  }
+}
+
 const getTimeAgo = (date) => {
   const seconds = Math.floor((new Date() - date) / 1000)
   
@@ -43,7 +70,80 @@ const getTimeAgo = (date) => {
   return `${days}d ago`
 }
 
-export default function ActivityFeed({ competitor, dateRange, items = [], isLoading = false, error = null }) {
+// Memoized activity card component to prevent re-renders
+const ActivityCard = memo(({ activity }) => {
+  // Memoize the time ago calculation so it doesn't change on every render
+  const timeAgo = useMemo(() => getTimeAgo(activity.timestamp), [activity.timestamp])
+  
+  return (
+    <div
+      className={`border-l-4 rounded-lg p-4 transition-all cursor-pointer hover:shadow-md animate-fade-in-up ${getSentimentStyles(activity.sentiment)}`}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          {getSourceIcon(activity.type)}
+          <span className="text-xs font-medium">{activity.source}</span>
+        </div>
+        <span className="text-xs text-muted-foreground">{timeAgo}</span>
+      </div>
+
+      {/* Headline */}
+      <h4 className="font-semibold text-sm text-foreground mb-2 line-clamp-2">
+        {activity.headline}
+      </h4>
+
+      {/* Excerpt */}
+      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+        {activity.excerpt}
+      </p>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between">
+        <div className="text-xs font-medium" style={{
+          color: getSentimentColor(activity.sentiment)
+        }}>
+          {getSentimentLabel(activity.sentiment)}
+        </div>
+        <a
+          href={activity.url}
+          className="text-xs text-primary hover:underline flex items-center gap-1"
+          onClick={(e) => e.stopPropagation()}
+          target="_blank" rel="noopener noreferrer"
+        >
+          Read more <ExternalLink className="w-3 h-3" />
+        </a>
+      </div>
+    </div>
+  )
+})
+
+// Memoized news grid component to prevent re-rendering existing items
+const NewsGrid = memo(({ items }) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {items.map((activity) => (
+        <ActivityCard key={activity.id} activity={activity} />
+      ))}
+    </div>
+  )
+})
+
+function ActivityFeed({ competitor, dateRange, items = [], isLoading = false, error = null, onLoadMore, hasMore = true, isLoadingMore = false }) {
+  const loadMoreButtonRef = useRef(null)
+
+  const handleLoadMore = () => {
+    // Save the current scroll position before loading more
+    const currentScrollY = window.scrollY
+    
+    // Call the load more function
+    onLoadMore()
+    
+    // After a brief delay (to allow React to render), restore scroll position
+    setTimeout(() => {
+      window.scrollTo(0, currentScrollY)
+    }, 0)
+  }
 
 
   return (
@@ -66,53 +166,35 @@ export default function ActivityFeed({ competitor, dateRange, items = [], isLoad
       )}
       
       {!isLoading && !error && items.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {items.map((activity) => (
-          <div
-            key={activity.id}
-            className={`border-l-4 rounded-lg p-4 transition-all cursor-pointer hover:shadow-md ${getSentimentStyles(activity.sentiment)}`}
-          >
-            {/* Header */}
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                {getSourceIcon(activity.type)}
-                <span className="text-xs font-medium">{activity.source}</span>
-              </div>
-              <span className="text-xs text-muted-foreground">{getTimeAgo(activity.timestamp)}</span>
-            </div>
-
-            {/* Headline */}
-            <h4 className="font-semibold text-sm text-foreground mb-2 line-clamp-2">
-              {activity.headline}
-            </h4>
-
-            {/* Excerpt */}
-            <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-              {activity.excerpt}
-            </p>
-
-            {/* Footer */}
-            <div className="flex items-center justify-between">
-              <div className="text-xs font-medium capitalize" style={{
-                color: activity.sentiment === 'positive' ? 'hsl(var(--sentiment-positive))' :
-                       activity.sentiment === 'negative' ? 'hsl(var(--sentiment-negative))' :
-                       'hsl(var(--sentiment-neutral))'
-              }}>
-                {activity.sentiment}
-              </div>
-              <a
-                href={activity.url}
-                className="text-xs text-primary hover:underline flex items-center gap-1"
-                onClick={(e) => e.stopPropagation()}
-                target="_blank" rel="noopener noreferrer"
+        <>
+          <NewsGrid items={items} />
+          
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="flex justify-center mt-6" ref={loadMoreButtonRef}>
+              <button
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+                className="group px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 hover:shadow-md hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer transition-all duration-200 ease-in-out flex items-center gap-2 font-medium"
               >
-                Read more <ExternalLink className="w-3 h-3" />
-              </a>
+                {isLoadingMore ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    Load More
+                    <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:translate-y-1" />
+                  </>
+                )}
+              </button>
             </div>
-          </div>
-        ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   )
 }
+
+export default ActivityFeed

@@ -35,6 +35,17 @@ export default function StockChart({ competitor, dateRange, stockData = [], isLo
 
   const stats = calculateStats()
 
+  // Get period label based on date range
+  const getPeriodLabel = () => {
+    const days = parseInt(dateRange)
+    if (days === 7) return 'Week'
+    if (days === 30) return 'Month'
+    if (days === 90) return 'Quarter'
+    return 'Period'
+  }
+
+  const periodLabel = getPeriodLabel()
+
   return (
     <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
@@ -89,13 +100,13 @@ export default function StockChart({ competitor, dateRange, stockData = [], isLo
 
       <div className="mt-4 pt-4 border-t border-border grid grid-cols-3 gap-4 text-center">
         <div>
-          <div className="text-xs text-muted-foreground mb-1">Week High</div>
+          <div className="text-xs text-muted-foreground mb-1">{periodLabel} High</div>
           <div className="text-sm font-semibold text-foreground">
             ${stats.weekHigh.toFixed(2)}
           </div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground mb-1">Week Low</div>
+          <div className="text-xs text-muted-foreground mb-1">{periodLabel} Low</div>
           <div className="text-sm font-semibold text-foreground">
             ${stats.weekLow.toFixed(2)}
           </div>

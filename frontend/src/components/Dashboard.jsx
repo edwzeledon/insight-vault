@@ -1,9 +1,10 @@
+import { memo } from 'react'
 import CompanyOverview from './dashboard/CompanyOverview'
 import SentimentChart from './dashboard/SentimentChart'
 import StockChart from './dashboard/StockChart'
 import ActivityFeed from './dashboard/ActivityFeed'
 
-export default function Dashboard({ competitor, dateRange, onDateRangeChange, newsItems, isNewsLoading, newsError, stockData, isStockLoading, mediaMentions, mediaMentionsChange, avgSentiment }) {
+const Dashboard = memo(function Dashboard({ competitor, dateRange, onDateRangeChange, newsItems, isNewsLoading, newsError, onLoadMoreNews, hasMoreNews, isLoadingMore, stockData, isStockLoading, mediaMentions, mediaMentionsChange, avgSentiment }) {
 
   if (!competitor) {
     return (
@@ -49,12 +50,17 @@ export default function Dashboard({ competitor, dateRange, onDateRangeChange, ne
         items={newsItems}
         isLoading={isNewsLoading}
         error={newsError}
+        onLoadMore={onLoadMoreNews}
+        hasMore={hasMoreNews}
+        isLoadingMore={isLoadingMore}
       />
 
       {/* Footer */}
       <footer className="text-center text-xs text-muted-foreground py-4 border-t border-border">
-        Data updated at {new Date().toLocaleString()} • Source: Multiple APIs
+        Last updated • Multiple API sources
       </footer>
     </div>
   )
-}
+})
+
+export default Dashboard

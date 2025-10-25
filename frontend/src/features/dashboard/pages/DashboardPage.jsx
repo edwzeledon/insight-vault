@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Sidebar from '../../../components/Sidebar'
 import TopBar from '../../../components/TopBar'
 import Dashboard from '../../../components/Dashboard'
@@ -8,11 +8,14 @@ export default function DashboardPage() {
   const accessToken = useAuthStore((state) => state.accessToken)
   const [competitors, setCompetitors] = useState([])
   const [selectedCompetitor, setSelectedCompetitor] = useState(null)
-  const [dateRange, setDateRange] = useState('30')
+  const [dateRange, setDateRange] = useState('7')
   const [isLoading, setIsLoading] = useState(false)
   const [newsItems, setNewsItems] = useState([])
   const [isNewsLoading, setIsNewsLoading] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [newsError, setNewsError] = useState(null)
+  const [newsOffset, setNewsOffset] = useState(0)
+  const [hasMoreNews, setHasMoreNews] = useState(true)
   const [stockData, setStockData] = useState([])
   const [isStockLoading, setIsStockLoading] = useState(false)
   const [isOverviewLoading, setIsOverviewLoading] = useState(false)
@@ -88,7 +91,7 @@ export default function DashboardPage() {
       setIsNewsLoading(true)
       setNewsError(null)
       try {
-        const response = await fetch(`http://localhost:3000/news/${selectedCompetitor.id}`, {
+        const response = await fetch(`http://localhost:3000/news/${selectedCompetitor.id}?limit=6&offset=0`, {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         })
         if (!response.ok) {
@@ -107,6 +110,8 @@ export default function DashboardPage() {
           url: row.url || '#'
         }))
         setNewsItems(transformed)
+        setNewsOffset(6) // Reset offset to 6 for next load
+        setHasMoreNews(transformed.length === 6) // If we got less than 6, no more news
       } catch (err) {
         console.error('Error fetching news:', err)
         setNewsError(err.message || 'Failed to load news')
@@ -124,7 +129,7 @@ export default function DashboardPage() {
       if (!accessToken || !selectedCompetitor?.id) return
       setIsOverviewLoading(true)
       try {
-        const response = await fetch(`http://localhost:3000/overview/${selectedCompetitor.id}?days=7`, {
+        const response = await fetch(`http://localhost:3000/overview/${selectedCompetitor.id}?days=${dateRange}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`
           }
@@ -133,7 +138,6 @@ export default function DashboardPage() {
           throw new Error(`Failed to fetch overview data (${response.status})`)
         }
         const data = await response.json()
-        console.log(`Fetched overview for ${selectedCompetitor.name}:`, data)
         
         // Update stock metrics
         if (data.stock) {
@@ -179,7 +183,7 @@ export default function DashboardPage() {
       }
     }
     fetchOverview()
-  }, [accessToken, selectedCompetitor?.id])
+  }, [accessToken, selectedCompetitor?.id, dateRange])
 
   // Fetch stock data for chart
   useEffect(() => {
@@ -187,7 +191,7 @@ export default function DashboardPage() {
       if (!accessToken || !selectedCompetitor?.id) return
       setIsStockLoading(true)
       try {
-        const response = await fetch(`http://localhost:3000/stocks/${selectedCompetitor.id}`, {
+        const response = await fetch(`http://localhost:3000/stocks/${selectedCompetitor.id}?days=${dateRange}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`
           }
@@ -216,7 +220,7 @@ export default function DashboardPage() {
       }
     }
     fetchStockData()
-  }, [accessToken, selectedCompetitor?.id])
+  }, [accessToken, selectedCompetitor?.id, dateRange])
 
   // Format competitor name (capitalize first letter)
   const formatName = (str) => {
@@ -323,6 +327,43 @@ export default function DashboardPage() {
     }
   }
 
+  // Load more news items
+  const handleLoadMoreNews = useCallback(async () => {
+    if (!accessToken || !selectedCompetitor?.id || isLoadingMore) return
+    
+    setIsLoadingMore(true)
+    try {
+      const response = await fetch(`http://localhost:3000/news/${selectedCompetitor.id}?limit=6&offset=${newsOffset}`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      })
+      if (!response.ok) {
+        throw new Error(`Failed to fetch more news (${response.status})`)
+      }
+      const rows = await response.json()
+      // Transform backend rows to ActivityFeed item shape
+      const transformed = (rows || []).map((row) => ({
+        id: row.id,
+        type: 'news',
+        source: row.source,
+        headline: row.headline,
+        excerpt: row.description,
+        timestamp: new Date(row.published_at),
+        sentiment: (row.sentiment || '1').toLowerCase(),
+        url: row.url || '#'
+      }))
+      
+      // Append to existing news items
+      setNewsItems(prev => [...prev, ...transformed])
+      setNewsOffset(prev => prev + 6)
+      setHasMoreNews(transformed.length === 6) // If we got less than 6, no more news
+    } catch (err) {
+      console.error('Error loading more news:', err)
+      setNewsError(err.message || 'Failed to load more news')
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }, [accessToken, selectedCompetitor?.id, newsOffset, isLoadingMore])
+
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar
@@ -345,6 +386,9 @@ export default function DashboardPage() {
             newsItems={newsItems}
             isNewsLoading={isNewsLoading}
             newsError={newsError}
+            onLoadMoreNews={handleLoadMoreNews}
+            hasMoreNews={hasMoreNews}
+            isLoadingMore={isLoadingMore}
             stockData={stockData}
             isStockLoading={isStockLoading}
             mediaMentions={mediaMentions}

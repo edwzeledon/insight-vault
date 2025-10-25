@@ -12,7 +12,7 @@ export const handleCompanyOverviewGet = async (orgId, days = 7) => {
             mediaMentionsResult,
             avgSentimentResult
         ] = await Promise.all([
-            getStockMetrics(orgId),
+            getStockMetrics(orgId, days),
             getMediaMentionsMetrics(orgId, days),
             getAverageSentiment(orgId, days)
         ])
@@ -28,8 +28,8 @@ export const handleCompanyOverviewGet = async (orgId, days = 7) => {
     }
 }
 
-// Get stock metrics (current price and weekly change)
-const getStockMetrics = async (orgId) => {
+// Get stock metrics (current price and change based on date range)
+const getStockMetrics = async (orgId, days) => {
     try {
         // Get current stock price (most recent)
         const currentSql = `
@@ -47,30 +47,30 @@ const getStockMetrics = async (orgId) => {
         
         const currentPrice = parseFloat(currentResult.rows[0].mid)
         
-        // Get stock price from 7 days ago
-        const weekAgoSql = `
+        // Get stock price from N days ago
+        const pastSql = `
             SELECT mid
             FROM sift_db.org_stocks
             WHERE org_id=$1
-            AND date <= (SELECT date FROM sift_db.org_stocks WHERE org_id=$1 ORDER BY date DESC LIMIT 1) - INTERVAL '7 days'
+            AND date <= (SELECT date FROM sift_db.org_stocks WHERE org_id=$1 ORDER BY date DESC LIMIT 1) - INTERVAL '${days} days'
             ORDER BY date DESC
             LIMIT 1;
         `
-        const weekAgoResult = await pool.query(weekAgoSql, [orgId])
+        const pastResult = await pool.query(pastSql, [orgId])
         
-        if (weekAgoResult.rows.length === 0) {
-            // Not enough data for weekly comparison
+        if (pastResult.rows.length === 0) {
+            // Not enough data for comparison
             return { currentPrice: currentPrice.toFixed(2), weekChange: null, weekChangePercent: null }
         }
         
-        const weekAgoPrice = parseFloat(weekAgoResult.rows[0].mid)
-        const weekChange = currentPrice - weekAgoPrice
-        const weekChangePercent = (weekChange / weekAgoPrice) * 100
+        const pastPrice = parseFloat(pastResult.rows[0].mid)
+        const priceChange = currentPrice - pastPrice
+        const changePercent = (priceChange / pastPrice) * 100
         
         return {
             currentPrice: currentPrice.toFixed(2),
-            weekChange: weekChange.toFixed(2),
-            weekChangePercent: weekChangePercent.toFixed(2)
+            weekChange: priceChange.toFixed(2),
+            weekChangePercent: changePercent.toFixed(2)
         }
     } catch (error) {
         console.error('Error fetching stock metrics:', error)

@@ -10,7 +10,6 @@ export const getCompanyOverview = async (req, res) => {
         }
         
         const overviewData = await handleCompanyOverviewGet(id, days)
-        console.log(`Overview data for org ${id}:`, JSON.stringify(overviewData, null, 2))
         res.status(200).json(overviewData)
     } catch (error) {
         console.error('Error in getCompanyOverview:', error)

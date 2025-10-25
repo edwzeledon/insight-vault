@@ -1,14 +1,13 @@
 import { TrendingUp, TrendingDown, MessageSquare, PieChart, Calendar } from 'lucide-react'
 import { getSentimentColor } from '../../lib/utils'
 
-export default function CompanyOverview({ competitor, dateRange, onDateRangeChange }) {
+export default function CompanyOverview({ competitor, dateRange, onDateRangeChange, mediaMentions = 0 }) {
   const sentimentColor = getSentimentColor(competitor.sentiment)
   const sentimentValue = (competitor.sentiment * 10).toFixed(2)
   const sentimentChange = 0.12 // Mock data
   
   // Mock data for additional metrics
-  const mediaMentions = 247
-  const mediaMentionsChange = 12
+  const mediaMentionsChange = 12 // TODO: Calculate from previous week
   const marketShare = 18.5
   const marketShareChange = -0.3
 
@@ -83,13 +82,15 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
             Stock Price
           </div>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-bold text-foreground">${competitor.stockPrice}</span>
+            <span className="text-3xl font-bold text-foreground">
+              ${competitor.stockPrice ? parseFloat(competitor.stockPrice).toFixed(2) : '0.00'}
+            </span>
           </div>
           <div className={`text-sm flex items-center gap-1 ${
-            competitor.stockChange > 0 ? 'text-sentiment-positive' : 'text-sentiment-negative'
+            parseFloat(competitor.stockChange) > 0 ? 'text-sentiment-positive' : 'text-sentiment-negative'
           }`}>
-            {competitor.stockChange > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {competitor.stockChange > 0 ? '+' : ''}{competitor.stockChange}% today
+            {parseFloat(competitor.stockChange) > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+            {parseFloat(competitor.stockChange) > 0 ? '+' : ''}{competitor.stockChange}% this week
           </div>
         </div>
 

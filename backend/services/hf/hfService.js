@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../../.env'})
 import fetch from 'node-fetch';
 
-const hfurl = 'https://api-inference.huggingface.co/models'
+const hfurl = 'https://huggingface.co/hf-inference/models'
 
 const sentimentMap = {
     'negative': 0, // negative

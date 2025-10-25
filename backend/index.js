@@ -8,7 +8,7 @@ import authRoutes from './routes/authRoutes.js'
 import newsRoutes from './routes/newsRoutes.js'
 import stockRoutes from './routes/stockRoutes.js'
 import { startNewsScheduler } from './services/jobs/newsJob.js'
-import { startStockScheduler } from './services/stock/stockService.js';
+import { startStockScheduler } from './services/jobs/stockJob.js'
 const port = 3000
 const app = express()
 

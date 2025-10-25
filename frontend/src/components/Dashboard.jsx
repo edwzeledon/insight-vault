@@ -3,7 +3,7 @@ import SentimentChart from './dashboard/SentimentChart'
 import StockChart from './dashboard/StockChart'
 import ActivityFeed from './dashboard/ActivityFeed'
 
-export default function Dashboard({ competitor, dateRange, onDateRangeChange, newsItems, isNewsLoading, newsError }) {
+export default function Dashboard({ competitor, dateRange, onDateRangeChange, newsItems, isNewsLoading, newsError, stockData, isStockLoading, mediaMentions }) {
 
   if (!competitor) {
     return (
@@ -22,12 +22,22 @@ export default function Dashboard({ competitor, dateRange, onDateRangeChange, ne
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
   {/* Company Overview Header */}
-  <CompanyOverview competitor={competitor} dateRange={dateRange} onDateRangeChange={onDateRangeChange} />
+  <CompanyOverview 
+    competitor={competitor} 
+    dateRange={dateRange} 
+    onDateRangeChange={onDateRangeChange}
+    mediaMentions={mediaMentions}
+  />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SentimentChart competitor={competitor} dateRange={dateRange} />
-        <StockChart competitor={competitor} dateRange={dateRange} />
+        <StockChart 
+          competitor={competitor} 
+          dateRange={dateRange} 
+          stockData={stockData}
+          isLoading={isStockLoading}
+        />
       </div>
 
       {/* Activity Feed - Full Width */}

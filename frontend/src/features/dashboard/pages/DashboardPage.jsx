@@ -13,6 +13,9 @@ export default function DashboardPage() {
   const [newsItems, setNewsItems] = useState([])
   const [isNewsLoading, setIsNewsLoading] = useState(false)
   const [newsError, setNewsError] = useState(null)
+  const [stockData, setStockData] = useState([])
+  const [isStockLoading, setIsStockLoading] = useState(false)
+  const [mediaMentions, setMediaMentions] = useState(0)
 
   // Fetch user competitors from backend on mount
   useEffect(() => {
@@ -84,9 +87,11 @@ export default function DashboardPage() {
     fetchNews()
   }, [accessToken, selectedCompetitor?.id])
 
-  useEffect(()=> {
-    const fetchCompetitorData = async () => {
-      if (!accessToken || !selectedCompetitor) return
+  // Fetch stock data for selected competitor
+  useEffect(() => {
+    const fetchStockData = async () => {
+      if (!accessToken || !selectedCompetitor?.id) return
+      setIsStockLoading(true)
       try {
         const response = await fetch(`http://localhost:3000/stocks/${selectedCompetitor.id}`, {
           headers: {
@@ -94,16 +99,65 @@ export default function DashboardPage() {
           }
         })
         if (!response.ok) {
-          throw new Error(`Failed to fetch competitor data (${response.status})`)
+          throw new Error(`Failed to fetch stock data (${response.status})`)
         }
-        const data = await response.json()
-        // Update local state with fetched data
-        setCompetitors(prev => prev.map(comp => comp.id === selectedCompetitor.id ? { ...comp, ...data } : comp))
+        const result = await response.json()
+        
+        // Extract data array from response object
+        const stockRows = result.data || []
+        
+        // Transform backend stock data for chart (reverse to get oldest to newest)
+        const transformed = stockRows.reverse().map((row) => ({
+          date: new Date(row.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          price: parseFloat(row.mid),
+          fullDate: new Date(row.date).toLocaleDateString()
+        }))
+        
+        setStockData(transformed)
+        
+        // Update competitor with latest stock price
+        if (transformed.length > 0) {
+          const latestPrice = transformed[transformed.length - 1].price
+          const oldestPrice = transformed[0].price
+          const priceChange = ((latestPrice - oldestPrice) / oldestPrice * 100).toFixed(2)
+          
+          setCompetitors(prev => prev.map(comp => 
+            comp.id === selectedCompetitor.id 
+              ? { ...comp, stockPrice: latestPrice.toFixed(2), stockChange: priceChange }
+              : comp
+          ))
+        }
       } catch (err) {
-        console.error('Error fetching competitor data:', err)
+        console.error('Error fetching stock data:', err)
+        setStockData([])
+      } finally {
+        setIsStockLoading(false)
       }
     }
-    fetchCompetitorData()
+    fetchStockData()
+  }, [accessToken, selectedCompetitor?.id])
+
+  // Fetch media mentions count for selected competitor
+  useEffect(() => {
+    const fetchMediaMentions = async () => {
+      if (!accessToken || !selectedCompetitor?.id) return
+      try {
+        const response = await fetch(`http://localhost:3000/news/${selectedCompetitor.id}/count?days=7`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        })
+        if (!response.ok) {
+          throw new Error(`Failed to fetch media mentions (${response.status})`)
+        }
+        const result = await response.json()
+        setMediaMentions(result.count || 0)
+      } catch (err) {
+        console.error('Error fetching media mentions:', err)
+        setMediaMentions(0)
+      }
+    }
+    fetchMediaMentions()
   }, [accessToken, selectedCompetitor?.id])
 
   // Format competitor name (capitalize first letter)
@@ -207,6 +261,9 @@ export default function DashboardPage() {
             newsItems={newsItems}
             isNewsLoading={isNewsLoading}
             newsError={newsError}
+            stockData={stockData}
+            isStockLoading={isStockLoading}
+            mediaMentions={mediaMentions}
           />
         </main>
       </div>

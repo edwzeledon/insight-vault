@@ -127,45 +127,41 @@ export default function Sidebar({ competitors, selectedCompetitor, onSelectCompe
           return (
             <div
               key={competitor.id}
+              onClick={() => onSelectCompetitor(competitor)}
               className={cn(
-                "relative group w-full rounded-lg transition-all",
-                "hover:bg-accent hover:shadow-sm",
+                "relative group w-full rounded-lg transition-all cursor-pointer",
+                "hover:bg-accent hover:shadow-sm p-3",
                 isSelected && "bg-accent shadow-md border-l-4 border-primary"
               )}
             >
-              <button
-                onClick={() => onSelectCompetitor(competitor)}
-                className="w-full p-3 text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="text-2xl">{competitor.logo}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-foreground truncate">
-                      {competitor.name}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      ${competitor.stockPrice} ({competitor.stockChange > 0 ? '+' : ''}{competitor.stockChange}%)
-                    </div>
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">{competitor.logo}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm text-foreground truncate">
+                    {competitor.name}
                   </div>
-                  
-                  {/* Sentiment bubble - hidden on hover */}
-                  <div className={cn(
-                    "sentiment-bubble group-hover:opacity-0 transition-opacity",
-                    sentimentColor === 'positive' && "sentiment-bubble-positive",
-                    sentimentColor === 'negative' && "sentiment-bubble-negative",
-                    sentimentColor === 'neutral' && "sentiment-bubble-neutral"
-                  )} />
-                  
-                  {/* Remove Button - Shows on hover in place of sentiment bubble */}
-                  <button
-                    onClick={(e) => handleRemoveClick(e, competitor)}
-                    className="absolute right-3 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive/80 transition-all cursor-pointer"
-                    title="Remove competitor"
-                  >
-                    <X className="w-5 h-5" strokeWidth={2.5} />
-                  </button>
+                  <div className="text-xs text-muted-foreground">
+                    ${competitor.stockPrice} ({competitor.stockChange > 0 ? '+' : ''}{competitor.stockChange}%)
+                  </div>
                 </div>
-              </button>
+                
+                {/* Sentiment bubble - hidden on hover */}
+                <div className={cn(
+                  "sentiment-bubble group-hover:opacity-0 transition-opacity",
+                  sentimentColor === 'positive' && "sentiment-bubble-positive",
+                  sentimentColor === 'negative' && "sentiment-bubble-negative",
+                  sentimentColor === 'neutral' && "sentiment-bubble-neutral"
+                )} />
+                
+                {/* Remove Button - Shows on hover in place of sentiment bubble */}
+                <button
+                  onClick={(e) => handleRemoveClick(e, competitor)}
+                  className="absolute right-3 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive/80 transition-all cursor-pointer"
+                  title="Remove competitor"
+                >
+                  <X className="w-5 h-5" strokeWidth={2.5} />
+                </button>
+              </div>
             </div>
           )
         })}

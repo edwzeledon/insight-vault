@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config()
 import pool from '../../db/pool.js'
 
+// Get stock history for chart
 export const handleFetchStockData = async (orgId) => {
     if (orgId === undefined || isNaN(orgId)) {
         throw new Error('Invalid organization')

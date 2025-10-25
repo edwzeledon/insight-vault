@@ -24,22 +24,6 @@ export const handleLatestNewsGet = async (id) => {
     }
 }
 
-export const handleNewsCountGet = async (id, days = 7) => {
-    try {
-        const sql = `
-            SELECT COUNT(*) as count
-            FROM sift_db.media
-            WHERE org_id=$1 
-            AND published_at >= CURRENT_DATE - INTERVAL '${days} days';
-        `
-        const results = await pool.query(sql, [id])
-        return parseInt(results.rows[0].count)
-    } catch (err) {
-        console.error('Error getting news count:', err)
-        throw new Error('Internal Server Error')
-    }
-}
-
 export const handleLatestNewsFetch = async ({ id }) => {
     //get the latest news date given org id
     const { date, org } = await getOrgLatestNewsDate(id)

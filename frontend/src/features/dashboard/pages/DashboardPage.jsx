@@ -15,7 +15,11 @@ export default function DashboardPage() {
   const [newsError, setNewsError] = useState(null)
   const [stockData, setStockData] = useState([])
   const [isStockLoading, setIsStockLoading] = useState(false)
+  const [isOverviewLoading, setIsOverviewLoading] = useState(false)
+  const [stockMetrics, setStockMetrics] = useState({ currentPrice: null, weekChangePercent: null })
   const [mediaMentions, setMediaMentions] = useState(0)
+  const [mediaMentionsChange, setMediaMentionsChange] = useState(null)
+  const [avgSentiment, setAvgSentiment] = useState(null)
 
   // Fetch user competitors from backend on mount
   useEffect(() => {
@@ -87,7 +91,59 @@ export default function DashboardPage() {
     fetchNews()
   }, [accessToken, selectedCompetitor?.id])
 
-  // Fetch stock data for selected competitor
+  // Fetch comprehensive overview data for selected competitor
+  useEffect(() => {
+    const fetchOverview = async () => {
+      if (!accessToken || !selectedCompetitor?.id) return
+      setIsOverviewLoading(true)
+      try {
+        const response = await fetch(`http://localhost:3000/overview/${selectedCompetitor.id}?days=7`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        })
+        if (!response.ok) {
+          throw new Error(`Failed to fetch overview data (${response.status})`)
+        }
+        const data = await response.json()
+        
+        // Update stock metrics
+        if (data.stock) {
+          setStockMetrics(data.stock)
+          if (data.stock.currentPrice !== null) {
+            setSelectedCompetitor(prev => ({
+              ...prev,
+              stockPrice: data.stock.currentPrice,
+              stockChange: data.stock.weekChangePercent
+            }))
+          }
+        }
+        
+        // Update media mentions
+        if (data.mediaMentions) {
+          setMediaMentions(data.mediaMentions.currentCount || 0)
+          setMediaMentionsChange(data.mediaMentions.changePercent)
+        }
+        
+        // Update average sentiment
+        if (data.sentiment) {
+          setAvgSentiment(data.sentiment.avgSentiment)
+        }
+      } catch (err) {
+        console.error('Error fetching overview:', err)
+        // Reset all overview data on error
+        setStockMetrics({ currentPrice: null, weekChangePercent: null })
+        setMediaMentions(0)
+        setMediaMentionsChange(null)
+        setAvgSentiment(null)
+      } finally {
+        setIsOverviewLoading(false)
+      }
+    }
+    fetchOverview()
+  }, [accessToken, selectedCompetitor?.id])
+
+  // Fetch stock data for chart
   useEffect(() => {
     const fetchStockData = async () => {
       if (!accessToken || !selectedCompetitor?.id) return
@@ -114,19 +170,6 @@ export default function DashboardPage() {
         }))
         
         setStockData(transformed)
-        
-        // Update competitor with latest stock price
-        if (transformed.length > 0) {
-          const latestPrice = transformed[transformed.length - 1].price
-          const oldestPrice = transformed[0].price
-          const priceChange = ((latestPrice - oldestPrice) / oldestPrice * 100).toFixed(2)
-          
-          setCompetitors(prev => prev.map(comp => 
-            comp.id === selectedCompetitor.id 
-              ? { ...comp, stockPrice: latestPrice.toFixed(2), stockChange: priceChange }
-              : comp
-          ))
-        }
       } catch (err) {
         console.error('Error fetching stock data:', err)
         setStockData([])
@@ -135,29 +178,6 @@ export default function DashboardPage() {
       }
     }
     fetchStockData()
-  }, [accessToken, selectedCompetitor?.id])
-
-  // Fetch media mentions count for selected competitor
-  useEffect(() => {
-    const fetchMediaMentions = async () => {
-      if (!accessToken || !selectedCompetitor?.id) return
-      try {
-        const response = await fetch(`http://localhost:3000/news/${selectedCompetitor.id}/count?days=7`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
-        })
-        if (!response.ok) {
-          throw new Error(`Failed to fetch media mentions (${response.status})`)
-        }
-        const result = await response.json()
-        setMediaMentions(result.count || 0)
-      } catch (err) {
-        console.error('Error fetching media mentions:', err)
-        setMediaMentions(0)
-      }
-    }
-    fetchMediaMentions()
   }, [accessToken, selectedCompetitor?.id])
 
   // Format competitor name (capitalize first letter)
@@ -264,6 +284,8 @@ export default function DashboardPage() {
             stockData={stockData}
             isStockLoading={isStockLoading}
             mediaMentions={mediaMentions}
+            mediaMentionsChange={mediaMentionsChange}
+            avgSentiment={avgSentiment}
           />
         </main>
       </div>

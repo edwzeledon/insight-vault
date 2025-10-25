@@ -7,6 +7,7 @@ import pool from './db/pool.js'
 import authRoutes from './routes/authRoutes.js'
 import newsRoutes from './routes/newsRoutes.js'
 import stockRoutes from './routes/stockRoutes.js'
+import overviewRoutes from './routes/overviewRoutes.js'
 import { startNewsScheduler } from './services/jobs/newsJob.js'
 import { startStockScheduler } from './services/jobs/stockJob.js'
 const port = 3000
@@ -27,6 +28,7 @@ app.use(cookieParser())
 app.use('/auth', authRoutes)
 app.use('/news', newsRoutes)
 app.use('/stocks', stockRoutes)
+app.use('/overview', overviewRoutes)
 
 app.post('/addcompetitor', async (req, res) => {
     try {

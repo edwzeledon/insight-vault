@@ -1,15 +1,14 @@
-import { TrendingUp, TrendingDown, MessageSquare, PieChart, Calendar } from 'lucide-react'
+import { TrendingUp, TrendingDown, MessageSquare, Activity, Calendar } from 'lucide-react'
 import { getSentimentColor } from '../../lib/utils'
 
-export default function CompanyOverview({ competitor, dateRange, onDateRangeChange, mediaMentions = 0 }) {
+export default function CompanyOverview({ competitor, dateRange, onDateRangeChange, mediaMentions = 0, mediaMentionsChange = null, avgSentiment = null }) {
   const sentimentColor = getSentimentColor(competitor.sentiment)
   const sentimentValue = (competitor.sentiment * 10).toFixed(2)
   const sentimentChange = 0.12 // Mock data
   
-  // Mock data for additional metrics
-  const mediaMentionsChange = 12 // TODO: Calculate from previous week
-  const marketShare = 18.5
-  const marketShareChange = -0.3
+  // Calculate average sentiment score and label
+  const avgSentimentScore = avgSentiment !== null ? parseFloat(avgSentiment).toFixed(2) : null
+  const avgSentimentColor = avgSentiment !== null ? getSentimentColor(avgSentiment) : 'neutral'
 
   const getSentimentLabel = (score) => {
     if (score >= 6) return 'Positive'
@@ -76,6 +75,57 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
           </div>
         </div>
 
+        {/* Average Sentiment Box */}
+        <div className="bg-card rounded-lg border border-border shadow-sm p-5">
+          <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2 flex items-center gap-1">
+            <Activity className="w-3 h-3" />
+            Avg Sentiment
+          </div>
+          <div className="flex items-baseline gap-2 mb-1">
+            {avgSentimentScore !== null ? (
+              <>
+                <span className="text-3xl font-bold text-foreground">{avgSentimentScore}</span>
+                <span className={`text-sm font-semibold ${
+                  avgSentimentColor === 'positive' ? 'text-sentiment-positive' :
+                  avgSentimentColor === 'negative' ? 'text-sentiment-negative' :
+                  'text-sentiment-neutral'
+                }`}>
+                  {getSentimentLabel(avgSentimentScore)}
+                </span>
+              </>
+            ) : (
+              <span className="text-xl text-muted-foreground">No data</span>
+            )}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Past 7 days average
+          </div>
+        </div>
+
+        {/* Media Mentions Box */}
+        <div className="bg-card rounded-lg border border-border shadow-sm p-5">
+          <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2 flex items-center gap-1">
+            <MessageSquare className="w-3 h-3" />
+            Media Mentions
+          </div>
+          <div className="flex items-baseline gap-2 mb-1">
+            <span className="text-3xl font-bold text-foreground">{mediaMentions}</span>
+            <span className="text-sm text-muted-foreground">this week</span>
+          </div>
+          {mediaMentionsChange !== null ? (
+            <div className={`text-sm flex items-center gap-1 ${
+              parseFloat(mediaMentionsChange) > 0 ? 'text-sentiment-positive' : parseFloat(mediaMentionsChange) < 0 ? 'text-sentiment-negative' : 'text-muted-foreground'
+            }`}>
+              {parseFloat(mediaMentionsChange) > 0 ? <TrendingUp className="w-4 h-4" /> : parseFloat(mediaMentionsChange) < 0 ? <TrendingDown className="w-4 h-4" /> : null}
+              {parseFloat(mediaMentionsChange) > 0 ? '+' : ''}{mediaMentionsChange}% vs last week
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">
+              No comparison data
+            </div>
+          )}
+        </div>
+
         {/* Stock Price Box */}
         <div className="bg-card rounded-lg border border-border shadow-sm p-5">
           <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">
@@ -91,41 +141,6 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
           }`}>
             {parseFloat(competitor.stockChange) > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             {parseFloat(competitor.stockChange) > 0 ? '+' : ''}{competitor.stockChange}% this week
-          </div>
-        </div>
-
-        {/* Market Share Box */}
-        <div className="bg-card rounded-lg border border-border shadow-sm p-5">
-          <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2 flex items-center gap-1">
-            <PieChart className="w-3 h-3" />
-            Market Share
-          </div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-bold text-foreground">{marketShare}%</span>
-          </div>
-          <div className={`text-sm flex items-center gap-1 ${
-            marketShareChange > 0 ? 'text-sentiment-positive' : 'text-sentiment-negative'
-          }`}>
-            {marketShareChange > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {marketShareChange > 0 ? '+' : ''}{marketShareChange}% this quarter
-          </div>
-        </div>
-
-        {/* Media Mentions Box */}
-        <div className="bg-card rounded-lg border border-border shadow-sm p-5">
-          <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2 flex items-center gap-1">
-            <MessageSquare className="w-3 h-3" />
-            Media Mentions
-          </div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-bold text-foreground">{mediaMentions}</span>
-            <span className="text-sm text-muted-foreground">this week</span>
-          </div>
-          <div className={`text-sm flex items-center gap-1 ${
-            mediaMentionsChange > 0 ? 'text-sentiment-positive' : 'text-sentiment-negative'
-          }`}>
-            {mediaMentionsChange > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {mediaMentionsChange > 0 ? '+' : ''}{mediaMentionsChange}% vs last week
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@ import SentimentChart from './dashboard/SentimentChart'
 import StockChart from './dashboard/StockChart'
 import ActivityFeed from './dashboard/ActivityFeed'
 
-export default function Dashboard({ competitor, dateRange, onDateRangeChange, newsItems, isNewsLoading, newsError, stockData, isStockLoading, mediaMentions }) {
+export default function Dashboard({ competitor, dateRange, onDateRangeChange, newsItems, isNewsLoading, newsError, stockData, isStockLoading, mediaMentions, mediaMentionsChange, avgSentiment }) {
 
   if (!competitor) {
     return (
@@ -27,6 +27,8 @@ export default function Dashboard({ competitor, dateRange, onDateRangeChange, ne
     dateRange={dateRange} 
     onDateRangeChange={onDateRangeChange}
     mediaMentions={mediaMentions}
+    mediaMentionsChange={mediaMentionsChange}
+    avgSentiment={avgSentiment}
   />
 
       {/* Charts Row */}

@@ -55,8 +55,6 @@ const saveHistoricalStockData = async (orgId, candles) => {
       `
       await pool.query(sql, [orgId, candle.mid, candle.date])
     }
-    
-    console.log(`Saved ${candles.length} historical stock data points for org ${orgId}`)
   } catch (error) {
     console.error('Error saving historical stock data:', error)
     throw new Error(`Failed to save historical stock data: ${error.message}`)
@@ -78,15 +76,12 @@ export const fetchAndSaveHistoricalData = async (orgId, symbol) => {
     const from = fromDate.toISOString().split('T')[0] // YYYY-MM-DD
     const to = toDate.toISOString().split('T')[0] // YYYY-MM-DD
 
-    console.log(`Fetching historical stock data for ${symbol} from ${from} to ${to}`)
-
     // Fetch historical data
     const candles = await fetchHistoricalStockData(symbol, 'D', from, to)
 
     // Save to database
     await saveHistoricalStockData(orgId, candles)
-
-    console.log(`Successfully fetched and saved historical data for ${symbol}`)
+    
   } catch (error) {
     console.error(`Error in fetchAndSaveHistoricalData for org ${orgId}:`, error)
     // Don't throw - we don't want to fail the competitor addition if historical data fetch fails

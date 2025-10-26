@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config()
 import fetch from 'node-fetch';
-import { getSentiment } from '../hf/hfService.js';
+import { getSentiment } from '../wink/winkService.js';
 import pool from '../../db/pool.js'
 import { TRUSTED_DOMAINS } from '../../config/newsSources.js'
 import { computeContentHash, clusterArticles } from '../dedupe/dedupeService.js'

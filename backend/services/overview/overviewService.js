@@ -10,17 +10,20 @@ export const handleCompanyOverviewGet = async (orgId, days = 7) => {
         const [
             stockMetricsResult,
             mediaMentionsResult,
-            avgSentimentResult
+            avgSentimentResult,
+            dailySentimentResult
         ] = await Promise.all([
             getStockMetrics(orgId, days),
             getMediaMentionsMetrics(orgId, days),
-            getAverageSentiment(orgId, days)
+            getAverageSentiment(orgId, days),
+            getDailySentiment(orgId)
         ])
 
         return {
             stock: stockMetricsResult,
             mediaMentions: mediaMentionsResult,
-            sentiment: avgSentimentResult
+            sentiment: avgSentimentResult,
+            dailySentiment: dailySentimentResult
         }
     } catch (error) {
         console.error('Error fetching company overview:', error)
@@ -141,6 +144,83 @@ const getAverageSentiment = async (orgId, days) => {
         return { avgSentiment, count }
     } catch (error) {
         console.error('Error fetching average sentiment:', error)
+        throw error
+    }
+}
+
+// Get daily sentiment (today vs yesterday)
+const getDailySentiment = async (orgId) => {
+    try {
+        // Get today's sentiment
+        const todaySql = `
+            SELECT AVG(sentiment) as avg_sentiment, COUNT(*) as count
+            FROM sift_db.media
+            WHERE org_id=$1 
+            AND DATE(published_at) = CURRENT_DATE
+            AND sentiment IS NOT NULL;
+        `
+        const todayResult = await pool.query(todaySql, [orgId])
+        
+        // Get yesterday's sentiment
+        const yesterdaySql = `
+            SELECT AVG(sentiment) as avg_sentiment, COUNT(*) as count
+            FROM sift_db.media
+            WHERE org_id=$1 
+            AND DATE(published_at) = CURRENT_DATE - INTERVAL '1 day'
+            AND sentiment IS NOT NULL;
+        `
+        const yesterdayResult = await pool.query(yesterdaySql, [orgId])
+        
+        // Get most recent sentiment (for when today has no data)
+        const mostRecentSql = `
+            SELECT AVG(sentiment) as avg_sentiment, DATE(published_at) as date
+            FROM sift_db.media
+            WHERE org_id=$1 
+            AND sentiment IS NOT NULL
+            GROUP BY DATE(published_at)
+            ORDER BY DATE(published_at) DESC
+            LIMIT 1;
+        `
+        const mostRecentResult = await pool.query(mostRecentSql, [orgId])
+        
+        const todaySentiment = todayResult.rows[0]?.avg_sentiment 
+            ? parseFloat(todayResult.rows[0].avg_sentiment) 
+            : null
+        const todayCount = parseInt(todayResult.rows[0]?.count || 0)
+        
+        const yesterdaySentiment = yesterdayResult.rows[0]?.avg_sentiment 
+            ? parseFloat(yesterdayResult.rows[0].avg_sentiment) 
+            : null
+        const yesterdayCount = parseInt(yesterdayResult.rows[0]?.count || 0)
+        
+        // If today has no data, use most recent sentiment
+        const currentSentiment = todaySentiment !== null 
+            ? todaySentiment 
+            : (mostRecentResult.rows[0]?.avg_sentiment 
+                ? parseFloat(mostRecentResult.rows[0].avg_sentiment) 
+                : null)
+        
+        // Calculate change
+        let change = null
+        let changePercent = null
+        
+        if (currentSentiment !== null && yesterdaySentiment !== null) {
+            change = currentSentiment - yesterdaySentiment
+            // For sentiment, calculate percentage of scale (0-2 range)
+            changePercent = (change / 2) * 100
+        }
+        
+        return {
+            todaySentiment: currentSentiment,
+            yesterdaySentiment,
+            change: change !== null ? parseFloat(change.toFixed(4)) : null,
+            changePercent: changePercent !== null ? parseFloat(changePercent.toFixed(2)) : null,
+            todayCount,
+            yesterdayCount,
+            hasDataToday: todayCount > 0
+        }
+    } catch (error) {
+        console.error('Error fetching daily sentiment:', error)
         throw error
     }
 }

@@ -4,7 +4,7 @@ import SentimentChart from './dashboard/SentimentChart'
 import StockChart from './dashboard/StockChart'
 import ActivityFeed from './dashboard/ActivityFeed'
 
-const Dashboard = memo(function Dashboard({ competitor, dateRange, onDateRangeChange, newsItems, isNewsLoading, newsError, onLoadMoreNews, hasMoreNews, isLoadingMore, stockData, isStockLoading, mediaMentions, mediaMentionsChange, avgSentiment }) {
+const Dashboard = memo(function Dashboard({ competitor, dateRange, onDateRangeChange, newsItems, isNewsLoading, newsError, onLoadMoreNews, hasMoreNews, isLoadingMore, stockData, isStockLoading, sentimentData, isSentimentLoading, mediaMentions, mediaMentionsChange, avgSentiment, dailySentiment }) {
 
   if (!competitor) {
     return (
@@ -30,11 +30,17 @@ const Dashboard = memo(function Dashboard({ competitor, dateRange, onDateRangeCh
     mediaMentions={mediaMentions}
     mediaMentionsChange={mediaMentionsChange}
     avgSentiment={avgSentiment}
+    dailySentiment={dailySentiment}
   />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SentimentChart competitor={competitor} dateRange={dateRange} />
+        <SentimentChart 
+          competitor={competitor} 
+          dateRange={dateRange}
+          sentimentData={sentimentData}
+          isLoading={isSentimentLoading}
+        />
         <StockChart 
           competitor={competitor} 
           dateRange={dateRange} 

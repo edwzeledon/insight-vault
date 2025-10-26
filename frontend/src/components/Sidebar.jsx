@@ -121,7 +121,7 @@ export default function Sidebar({ competitors, selectedCompetitor, onSelectCompe
       {/* Competitor List */}
       <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2">
         {filteredCompetitors.map((competitor) => {
-          const sentimentColor = getSentimentColor(competitor.sentiment)
+          const sentimentColor = getSentimentColor(competitor.avgSentiment)
           const isSelected = selectedCompetitor?.id === competitor.id
 
           return (

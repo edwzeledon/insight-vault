@@ -18,11 +18,14 @@ export default function DashboardPage() {
   const [hasMoreNews, setHasMoreNews] = useState(true)
   const [stockData, setStockData] = useState([])
   const [isStockLoading, setIsStockLoading] = useState(false)
+  const [sentimentData, setSentimentData] = useState([])
+  const [isSentimentLoading, setIsSentimentLoading] = useState(false)
   const [isOverviewLoading, setIsOverviewLoading] = useState(false)
   const [stockMetrics, setStockMetrics] = useState({ currentPrice: null, weekChangePercent: null })
   const [mediaMentions, setMediaMentions] = useState(0)
   const [mediaMentionsChange, setMediaMentionsChange] = useState(null)
   const [avgSentiment, setAvgSentiment] = useState(null)
+  const [dailySentiment, setDailySentiment] = useState(null)
 
   // Fetch user competitors from backend on mount
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function DashboardPage() {
 
     const getUserCompetitors = async () => {
       try {
-        const response = await fetch('http://localhost:3000/getUserCompetitors', {
+        const response = await fetch('http://localhost:3000/competitors', {
           headers: {
             'Authorization': `Bearer ${accessToken}`
           }
@@ -43,7 +46,8 @@ export default function DashboardPage() {
             id: org.org_id,
             name: org.name,
             logo: '🏢', // Default logo, can be customized later
-            sentiment: Math.random(), // TODO: Replace with real sentiment from backend
+            sentiment: null, // Will be replaced with avgSentiment from overview
+            avgSentiment: null, // Will be fetched from overview
             stockPrice: null, // Will be fetched from overview
             stockChange: null // Will be fetched from overview
           }))
@@ -65,7 +69,8 @@ export default function DashboardPage() {
                       ? { 
                           ...comp, 
                           stockPrice: data.stock.currentPrice || null, 
-                          stockChange: data.stock.weekChangePercent || null 
+                          stockChange: data.stock.weekChangePercent || null,
+                          avgSentiment: data.sentiment?.avgSentiment || null
                         }
                       : comp
                   ))
@@ -106,7 +111,7 @@ export default function DashboardPage() {
           headline: row.headline,
           excerpt: row.description,
           timestamp: new Date(row.published_at),
-          sentiment: (row.sentiment || '1').toLowerCase(),
+          sentiment: (row.sentiment.toString() || '1').toLowerCase(),
           url: row.url || '#'
         }))
         setNewsItems(transformed)
@@ -149,13 +154,14 @@ export default function DashboardPage() {
             stockChange: data.stock.weekChangePercent || null
           }))
           
-          // Update the competitor in the sidebar list
+          // Update the competitor in the sidebar list with stock and sentiment data
           setCompetitors(prev => prev.map(comp => 
             comp.id === selectedCompetitor.id 
               ? { 
                   ...comp, 
                   stockPrice: data.stock.currentPrice || null, 
-                  stockChange: data.stock.weekChangePercent || null 
+                  stockChange: data.stock.weekChangePercent || null,
+                  avgSentiment: data.sentiment?.avgSentiment || null
                 }
               : comp
           ))
@@ -171,6 +177,11 @@ export default function DashboardPage() {
         if (data.sentiment) {
           setAvgSentiment(data.sentiment.avgSentiment)
         }
+        
+        // Update daily sentiment
+        if (data.dailySentiment) {
+          setDailySentiment(data.dailySentiment)
+        }
       } catch (err) {
         console.error('Error fetching overview:', err)
         // Reset all overview data on error
@@ -178,6 +189,7 @@ export default function DashboardPage() {
         setMediaMentions(0)
         setMediaMentionsChange(null)
         setAvgSentiment(null)
+        setDailySentiment(null)
       } finally {
         setIsOverviewLoading(false)
       }
@@ -222,6 +234,41 @@ export default function DashboardPage() {
     fetchStockData()
   }, [accessToken, selectedCompetitor?.id, dateRange])
 
+  // Fetch sentiment data for chart
+  useEffect(() => {
+    const fetchSentimentData = async () => {
+      if (!accessToken || !selectedCompetitor?.id) return
+      setIsSentimentLoading(true)
+      try {
+        const response = await fetch(`http://localhost:3000/sentiment/${selectedCompetitor.id}?days=${dateRange}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        })
+        if (!response.ok) {
+          throw new Error(`Failed to fetch sentiment data (${response.status})`)
+        }
+        const result = await response.json()
+        
+        // Transform backend sentiment data for chart
+        const transformed = result.map((row) => ({
+          date: new Date(row.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          sentiment: row.avgSentiment, // Keep as 0-2 scale, will normalize in chart
+          articleCount: row.articleCount,
+          fullDate: new Date(row.date).toLocaleDateString()
+        }))
+        
+        setSentimentData(transformed)
+      } catch (err) {
+        console.error('Error fetching sentiment data:', err)
+        setSentimentData([])
+      } finally {
+        setIsSentimentLoading(false)
+      }
+    }
+    fetchSentimentData()
+  }, [accessToken, selectedCompetitor?.id, dateRange])
+
   // Format competitor name (capitalize first letter)
   const formatName = (str) => {
     if (!str) return ''
@@ -236,7 +283,7 @@ export default function DashboardPage() {
     const formatted = { name: formatName(name) }
     
     try {
-      const response = await fetch('http://localhost:3000/addcompetitor', {
+      const response = await fetch('http://localhost:3000/competitors', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -257,7 +304,8 @@ export default function DashboardPage() {
           id: results.org_id,
           name: formatted.name,
           logo: '🏢',
-          sentiment: Math.random(), // TODO: Replace with real sentiment
+          sentiment: null,
+          avgSentiment: null, // Will be fetched from overview
           stockPrice: null, // Will be fetched from overview
           stockChange: null // Will be fetched from overview
         }
@@ -278,7 +326,8 @@ export default function DashboardPage() {
                   ? { 
                       ...comp, 
                       stockPrice: data.stock.currentPrice || null, 
-                      stockChange: data.stock.weekChangePercent || null 
+                      stockChange: data.stock.weekChangePercent || null,
+                      avgSentiment: data.sentiment?.avgSentiment || null
                     }
                   : comp
               ))
@@ -302,7 +351,7 @@ export default function DashboardPage() {
     if (!accessToken) return
     
     try {
-      const response = await fetch(`http://localhost:3000/userCompetitors/${id}`, {
+      const response = await fetch(`http://localhost:3000/competitors/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${accessToken}`
@@ -391,9 +440,12 @@ export default function DashboardPage() {
             isLoadingMore={isLoadingMore}
             stockData={stockData}
             isStockLoading={isStockLoading}
+            sentimentData={sentimentData}
+            isSentimentLoading={isSentimentLoading}
             mediaMentions={mediaMentions}
             mediaMentionsChange={mediaMentionsChange}
             avgSentiment={avgSentiment}
+            dailySentiment={dailySentiment}
           />
         </main>
       </div>

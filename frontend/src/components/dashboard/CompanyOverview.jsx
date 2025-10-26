@@ -1,18 +1,33 @@
 import { TrendingUp, TrendingDown, MessageSquare, Activity, Calendar } from 'lucide-react'
 import { getSentimentColor } from '../../lib/utils'
 
-export default function CompanyOverview({ competitor, dateRange, onDateRangeChange, mediaMentions = 0, mediaMentionsChange = null, avgSentiment = null }) {
-  const sentimentColor = getSentimentColor(competitor.sentiment)
-  const sentimentValue = (competitor.sentiment * 10).toFixed(2)
-  const sentimentChange = 0.12 // Mock data
+export default function CompanyOverview({ competitor, dateRange, onDateRangeChange, mediaMentions = 0, mediaMentionsChange = null, avgSentiment = null, dailySentiment = null }) {
+  // Calculate daily sentiment values (convert from 0-2 scale to 0-10 display scale)
+  const todaySentimentScore = dailySentiment && dailySentiment.todaySentiment !== null && dailySentiment.todaySentiment !== undefined
+    ? (parseFloat(dailySentiment.todaySentiment) * 5).toFixed(2) 
+    : null
   
-  // Calculate average sentiment score and label
-  const avgSentimentScore = avgSentiment !== null ? parseFloat(avgSentiment).toFixed(2) : null
-  const avgSentimentColor = avgSentiment !== null ? getSentimentColor(avgSentiment) : 'neutral'
+  const dailySentimentChange = dailySentiment && dailySentiment.change !== null && dailySentiment.change !== undefined
+    ? parseFloat(dailySentiment.change).toFixed(4)
+    : null
+  
+  // For color, use the raw 0-2 scale value
+  const dailySentimentColor = dailySentiment && dailySentiment.todaySentiment !== null && dailySentiment.todaySentiment !== undefined
+    ? (dailySentiment.todaySentiment < 0.67 ? 'negative' : dailySentiment.todaySentiment < 1.33 ? 'neutral' : 'positive') 
+    : 'neutral'
+  
+  // Calculate average sentiment score and label (convert from 0-2 scale to 0-10 display scale)
+  const avgSentimentScore = avgSentiment !== null ? (parseFloat(avgSentiment) * 5).toFixed(2) : null
+  
+  // For color, use the raw 0-2 scale value
+  const avgSentimentColor = avgSentiment !== null ? 
+    (avgSentiment < 0.67 ? 'negative' : avgSentiment < 1.33 ? 'neutral' : 'positive') : 
+    'neutral'
 
   const getSentimentLabel = (score) => {
-    if (score >= 6) return 'Positive'
-    if (score <= 4) return 'Negative'
+    // score is on 0-10 display scale
+    if (score >= 6.65) return 'Positive'  // 1.33 * 5 = 6.65
+    if (score <= 3.35) return 'Negative'  // 0.67 * 5 = 3.35
     return 'Neutral'
   }
 
@@ -70,28 +85,44 @@ export default function CompanyOverview({ competitor, dateRange, onDateRangeChan
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Daily Sentiment Box */}
         <div className={`bg-card rounded-lg border shadow-sm p-5 ${
-          sentimentColor === 'positive' ? 'border-l-4 border-l-sentiment-positive' :
-          sentimentColor === 'negative' ? 'border-l-4 border-l-sentiment-negative' :
+          dailySentimentColor === 'positive' ? 'border-l-4 border-l-sentiment-positive' :
+          dailySentimentColor === 'negative' ? 'border-l-4 border-l-sentiment-negative' :
           'border-l-4 border-l-sentiment-neutral'
         }`}>
           <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">
             Daily Sentiment
           </div>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-bold text-foreground">{sentimentValue}</span>
-            <span className={`text-sm font-semibold ${
-              sentimentColor === 'positive' ? 'text-sentiment-positive' :
-              sentimentColor === 'negative' ? 'text-sentiment-negative' :
-              'text-sentiment-neutral'
-            }`}>
-              {getSentimentLabel(sentimentValue)}
-            </span>
+            {todaySentimentScore !== null ? (
+              <>
+                <span className="text-3xl font-bold text-foreground">{todaySentimentScore}</span>
+                <span className={`text-sm font-semibold ${
+                  dailySentimentColor === 'positive' ? 'text-sentiment-positive' :
+                  dailySentimentColor === 'negative' ? 'text-sentiment-negative' :
+                  'text-sentiment-neutral'
+                }`}>
+                  {getSentimentLabel(todaySentimentScore)}
+                </span>
+              </>
+            ) : (
+              <span className="text-xl text-muted-foreground">No data</span>
+            )}
           </div>
           <div className={`text-sm flex items-center gap-1 ${
-            sentimentChange > 0 ? 'text-sentiment-positive' : 'text-sentiment-negative'
+            dailySentimentChange !== null && parseFloat(dailySentimentChange) > 0 ? 'text-sentiment-positive' : 
+            dailySentimentChange !== null && parseFloat(dailySentimentChange) < 0 ? 'text-sentiment-negative' : 
+            'text-muted-foreground'
           }`}>
-            {sentimentChange > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {sentimentChange > 0 ? '+' : ''}{sentimentChange.toFixed(2)} from yesterday
+            {dailySentimentChange !== null && parseFloat(dailySentimentChange) !== 0 ? (
+              <>
+                {parseFloat(dailySentimentChange) > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                {parseFloat(dailySentimentChange) > 0 ? '+' : ''}{(parseFloat(dailySentimentChange) * 5).toFixed(2)} from yesterday
+              </>
+            ) : dailySentiment && dailySentiment.hasDataToday === false ? (
+              <>No new data today</>
+            ) : (
+              <>Unchanged from yesterday</>
+            )}
           </div>
         </div>
 

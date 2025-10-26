@@ -5,10 +5,13 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs))
 }
 
+// Updated to work with 0-2 sentiment scale from database
+// 0 = Negative, 1 = Neutral, 2 = Positive
 export function getSentimentColor(sentiment) {
-  if (sentiment >= 0.6) return 'positive'
-  if (sentiment <= 0.4) return 'negative'
-  return 'neutral'
+  if (sentiment === null || sentiment === undefined) return 'neutral'
+  if (sentiment < 0.67) return 'negative'  // 0 to 0.67 = Negative
+  if (sentiment < 1.33) return 'neutral'   // 0.67 to 1.33 = Neutral
+  return 'positive'                         // 1.33 to 2 = Positive
 }
 
 export function formatNumber(num) {
